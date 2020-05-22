@@ -13,25 +13,16 @@ Version: 5/20/2020
 """
 
 import arcpy
+import numpy as np
 import sys
 import time
 from DataLocation import allwells, CWIPL, CWIST
+from scipy import spatial
+#from Verify import strID
 
-def Trees():
-    start_time = time.time()
-    
-    ID = 593596 #Just using for simplicity
-    ID = str(593596)
-    #ID = input("Please provide a Well ID number: ")
-    #IDint = int(ID)
-    with arcpy.da.SearchCursor(CWIPL , ["WELLID"], "WELLID = " + ID) as cursor:
-        for row in cursor:   
-            break
-        else:
-           print("Well ID not found.")
-           sys.exit()  #Terminates the function
-            
-    with arcpy.da.SearchCursor(CWIST , ["WELLID"], "WELLID = " + ID) as cursor:
+def findWells():
+    strID = str(593596) #remove        
+    with arcpy.da.SearchCursor(CWIST , ["WELLID"], "WELLID = " + strID) as cursor:
         for row in cursor:   
             break
         else:
@@ -41,19 +32,32 @@ def Trees():
     # Process: Join Field (Join Field) 
     allwells_2_ = arcpy.AddJoin_management(allwells, "RELATEID", CWIPL, "RELATEID", "KEEP_COMMON")[0]
     print("Well 2 done")
+    
     # Process: Join Field (2) (Join Field) 
     allwells_3_ = arcpy.AddJoin_management(allwells_2_, "RELATEID",CWIST, "RELATEID", "KEEP_COMMON")[0]
     print("Well 3 Done")
 
     well_data = []
     
-    with arcpy.da.SearchCursor(allwells_3_, ["C5ST.WELLID"], "WELLID = " + ID) as cursor:
-        for rows in cursor:
-            well_data.append(rows)
+    well_data = arcpy.da.SearchCursor(allwells_3_, ["allwells.SHAPE","C5ST.WELLID"], "WELLID = " + strID)
+    
+    
+    
+    xy = np.array([[well[0][0], well[0][1]] for well in well_data])
+    tree = spatial.cKDTree(xy[:, 0:1])
+    #xtarget, ytarget =  arcpy.da.SearchCursor(allwells_3_, ["UTME", "UTMN", "C5ST.WELLID"], "WELLID = " + ID)
+    
+    
+    query = tree.query_ball_point(xy, 5)
+    print(query)
 
-    return well_data
 
 
 
-Trees()
-            
+
+
+
+
+
+
+

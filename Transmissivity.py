@@ -28,7 +28,12 @@ ASSUMPTIONS:
 Created on Mon May 18 09:01:15 2020
 -------------------------------------------------------------------------------
 """
+"""
+This function should be broken down into smaller helper function, this will
+make things simpiler.
 
+5/22/2020
+"""
 
 import math
 from scipy.optimize import fsolve
