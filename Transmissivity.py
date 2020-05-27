@@ -1,7 +1,8 @@
 """
 Transmissivity T(x):
 
-This function calculates the Transmissivity for a specific well.
+This function calculates the Transmissivity for a specific well. This function
+uses the Bradbury & Rothschild method for calculations.
 
 INPUTS:
     Q = pump rate (gal/min)
@@ -37,8 +38,11 @@ make things simpiler.
 
 import math
 from scipy.optimize import fsolve
-#from Buffer import Count_2
-#from Buffer import allwells_3_
+from Pump import Pump
+from DrawDown import DrawDown
+from getTime import Time
+from CasingRadius import Radius
+from ScreenLength import Screen
 
 def T(x):
    #This code assumes imperial units only 
@@ -53,25 +57,16 @@ def T(x):
     #WW = 62.4 #Lb/ft^3 weight of water
     #ADD EFFECTIVE RADIUS CALCULATION
 
-    """
-    Q = input("Insert Pump Rate (gal/min): ")
-    Q = float(Q)
-    s = input("Enter drawdown (ft):")
-    s = float(s)
-    t = input("Enter Pumping Duration (days): ")
-    t = float(t)
-    L = input("Enter screen length (ft): ")
-    L = float(L)
-    r = input ("Enter wellbore radius (in): ")
-    r = float(r)
+    Q = Pump()
     
-    b = input("Aquifer Thickness (ft): ")
-    b = float(b)
-    rw = input("Effective Radius (ft): ") #Use the radius of the casing
-    rw = float(rw)
-    Co = input("Enter step-test value: ")
-    Co = float(Co)
-    """
+    s = DrawDown()
+    
+    L = Screen()
+    
+    rw = Radius()
+    
+    t = Time()
+    
     
     Q = Q*192.5
     
