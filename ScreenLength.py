@@ -12,28 +12,33 @@ Version: 5/26/2020
 """
 #Needs code for Locate by Distance but will come back
 import arcpy
-import Verify
+import numpy as np
 from DataLocation import allwells
+import time
 
 
+def Screen(RID):
 
-def Screen():
-     strID = str(593596)
-     L = []
-     #ID = Verify.strID #WILL NEED TO CHANGE THIS WHEN YOU BRING BACK THE input
-     with arcpy.da.SearchCursor(allwells , ["CASE_DEPTH","DEPTH_DRLL", "WELLID"], "WELLID = " + strID) as cursor:
-         for row in cursor:
-             if cursor[0] > 0 and cursor[0] != None:
-                 if cursor[1] > 0 and cursor[1] != None:
-                     L = cursor[1] - cursor[0]
+     LENGTH = []
+     for row in RID:
+         with arcpy.da.SearchCursor(allwells , ["CASE_DEPTH","DEPTH_DRLL"], f"RELATEID = '{row}'") as cursor:
+             for row in cursor:
+
+                 if cursor[0] != None and cursor[0] > 0:
+                     if cursor[1] != None and cursor[1] > 0:
+                         L = cursor[1] - cursor[0]
+                         LENGTH.append(L)
+                        
+                     else:
+                         L = cursor[0]
+                         LENGTH.append(L)
+                         
                  else:
-                     L = cursor[0]
-             else:
-                 L = 0
-                 print("Screen Length is Zero")
-                 
-     return L
-    
+                     L = 0
+                     LENGTH.append(L)
+                     
+                
+     return LENGTH
 
 
 

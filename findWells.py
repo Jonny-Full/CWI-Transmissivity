@@ -17,13 +17,13 @@ import numpy as np
 from DataLocation import allwells
 from scipy import spatial
 import time
-#from Verify import strID
 
-def findWells(strID, radius):
+
+def findWells(ID, RADIUS):
     start_time = time.time()
             
     targetWell = []        
-    with arcpy.da.SearchCursor(allwells, ['SHAPE', 'AQUIFER'], f"RELATEID = '{strID}'") as cursor: 
+    with arcpy.da.SearchCursor(allwells, ['SHAPE', 'AQUIFER'], f"RELATEID = '{ID}'") as cursor: 
         
         for row in cursor:
             targetWell.append(row) #redefine targetwell
@@ -40,7 +40,7 @@ def findWells(strID, radius):
     
     tree = spatial.cKDTree(xy)
     
-    selectedWellindex = tree.query_ball_point(targetWell[0], radius) #I am stumped ask Barnes 
+    selectedWellindex = tree.query_ball_point(targetWell[0], RADIUS) #I am stumped ask Barnes 
     selectedWells = []
     for i in selectedWellindex:
         selectedWells.append(well_data[i])

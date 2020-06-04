@@ -13,21 +13,19 @@ Version: 5/26/2020
 
 #Needs code for Locate by Distance but will come back
 import arcpy
-import Verify
 from DataLocation import allwells
 
-def Radius():
-     strID = str(593596)
-     rw = []
-     #ID = Verify.strID #WILL NEED TO CHANGE THIS WHEN YOU BRING BACK THE input
-     with arcpy.da.SearchCursor(allwells , ["CASE_DIAM", "WELLID"], "WELLID = " + strID) as cursor:
-         for row in cursor:
-             if cursor[0] > 0 and cursor[0] != None:
-                 rw = cursor[0]/24
-             else:
-                 rw = 0
-                 print("Casing Radius is Zero")
-                 
-     return rw
+def Radius(RID):
+    RADIUS= []
+    for row in RID:
+         with arcpy.da.SearchCursor(allwells , ["CASE_DIAM"], f"RELATEID = '{row}'") as cursor:
+             for row in cursor:
+                 if cursor[0] != None and cursor[0] > 0:
+                     RW = cursor[0]/24
+                     RADIUS.append(RW)
+                 else:
+                     RW = 0
+                     RADIUS.append(RW)        
+    return RADIUS
     
 

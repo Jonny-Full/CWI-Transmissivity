@@ -15,14 +15,17 @@ Version: 5/22/2020
 -------------------------------------------------------------------------------
 """
 
-
-from Transmissivity import T
-from findWells import Model
 from Verify import Verify
+from findWells import findWells
+from Transmissivity import Calc
+import time
 
-#Verifies the Well ID input
-Verify()
+start_time = time.time()
+RADIUS = 1000 #meters
+ID = Verify()
+selectedWells = findWells(ID, RADIUS)
+RID = [i[2] for i in selectedWells]
 
-Model()
+TSIV = Calc(RID)
 
-T()
+print(time.time()-start_time)
