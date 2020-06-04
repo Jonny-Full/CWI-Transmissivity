@@ -43,17 +43,18 @@ from DrawDown import DrawDown
 from getTime import Time
 from CasingRadius import Radius
 from ScreenLength import Screen
+import time
 
 
 
 def Calc(RID):
-   #This code assumes imperial units only 
+    start_time = time.time() 
     Q = 100    #gpm
     s = 5     #ft  
     t = 1     #day  
     L = 100   #ft  
     r = 0.25  #ft  not required for calculations but needed for rw
-    b = 100   #ft  
+    b = [100]   #ft  
     rw = 0.25 #ft
     Co = 0
     sw = Co * Q**2 
@@ -64,35 +65,35 @@ def Calc(RID):
         
     Q = []
     Q = Pump(RID)
-    print("Q Done")    
+    print("Q Done", (time.time()-start_time))    
     s = []
     s = DrawDown(RID)
-    print("s Done")    
+    print("s Done", time.time()-start_time)    
     L = []
     L = Screen(RID)
-    print("L Done")
+    print("L Done", time.time() - start_time)
     rw = []
     rw = Radius(RID)
-    print("rw done")
+    print("rw done", time.time() - start_time)
     t = []
     t = Time(RID)
-    print("t done")
+    print("t done", time.time() - start_time)
     
     for i in range(len(Q)):
         
-        Lb = L[i]/100  
-        G =  2.948 - (7.363*(Lb)) + (11.447*((Lb)**2)) - (4.675*((Lb)**3))
+        Lb = [L[i]/100]  
+        G =  [2.948 - (7.363*(Lb)) + (11.447*((Lb)**2)) - (4.675*((Lb)**3))]
         
         sp = ((1-Lb)/Lb)*(math.log(b[i]/rw[i])-G)
         
     #change to a while loop
-        Transmissivity = (Q[i]/(4*math.pi*(s[i]-sw)))*(math.log(2.25*Tguess*t[i]/((rw[i]**2) * S)) + 2*sp[i])
-
-    print(Transmissivity)   
+        ITERATE = (Q[i]/(4*math.pi*(s[i]-sw)))*(math.log(2.25*Tguess*t[i]/((rw[i]**2) * S)) + 2*sp[i])
+        
     
     return(Q/(4*math.pi*(s-sw)))*(math.log(2.25*Tguess*t/((rw**2) * S)) + 2*sp)
     
 #x = fsolve(T, 0)
- 
+#Calc(RID)
+#print(Calc(RID))   
 
 

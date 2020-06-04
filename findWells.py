@@ -57,12 +57,7 @@ def findWells(ID, RADIUS):
 
 #Remove Aquifer()
 
-def Aquifer():
-    with arcpy.da.SearchCursor(allwells_3_, ["allwells.SHAPE", "AQUIFER", "C5PL.WELLID"], "WELLID = " + strID) as cursor:
-    
-        for row in cursor:
-            if row[1] == AQ:
-                well_data.append(row)
+
     
     
     

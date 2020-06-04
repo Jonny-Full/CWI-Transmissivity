@@ -13,8 +13,9 @@ Version: 5/26/2020
 #COMPLETED
 import arcpy
 from DataLocation import CWIPL
+import time
 def Pump(RID):
-    
+    start_time = time.time()
     FLOW = []
     for row in RID:
         with arcpy.da.SearchCursor(CWIPL , ["FLOW_RATE"], f"RELATEID = '{row}'") as cursor:
@@ -31,6 +32,6 @@ def Pump(RID):
                 else:
                     Q = 0
                     FLOW.append(Q)
+    print(time.time()-start_time)
     return FLOW
     
-

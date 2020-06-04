@@ -14,20 +14,19 @@ from DataLocation import CWIPL, CWIST
 import sys
 
 def Verify():
-    ID = 593596 #Just using for simplicity
-    strID = str(593596)
-    #ID = input("Please provide a Well ID number: ")
-    with arcpy.da.SearchCursor(CWIPL , ["WELLID"], "WELLID = " + strID) as cursor:
+    ID = "0000593596"
+    #ID = input("Please input a RELATEID number: ")
+    with arcpy.da.SearchCursor(CWIPL , ["RELATEID"], f"RELATEID = '{ID}'") as cursor:
         for row in cursor:   
             break
         else:
-           print("Well ID not found.")
+           print("RELATEID not found.")
            sys.exit()  #Terminates the function
             
-    with arcpy.da.SearchCursor(CWIST , ["WELLID"], "WELLID = " + strID) as cursor:
+    with arcpy.da.SearchCursor(CWIST , ["RELATEID"], f"RELATEID = '{ID}'") as cursor:
         for row in cursor:   
             break
         else:
-            print("Well ID not found.")
+            print("RELATEID not found.")
             sys.exit()  #Terminates the function
-        print("Done")
+    return ID

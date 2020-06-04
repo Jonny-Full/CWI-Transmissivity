@@ -20,12 +20,8 @@ from findWells import findWells
 from Transmissivity import Calc
 import time
 
-start_time = time.time()
 RADIUS = 1000 #meters
 ID = Verify()
 selectedWells = findWells(ID, RADIUS)
 RID = [i[2] for i in selectedWells]
-
 TSIV = Calc(RID)
-
-print(time.time()-start_time)
