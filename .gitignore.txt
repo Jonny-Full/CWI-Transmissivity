@@ -1,8 +1,8 @@
-.Buffer
-.MatLab
-.Play
-.DrawDown
-.Pump
-.CasingRadius
-.getTime
-.ScreenLength
+Buffer
+MatLab
+Play
+DrawDown
+Pump
+CasingRadius
+getTime
+ScreenLength
