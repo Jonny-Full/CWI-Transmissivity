@@ -14,21 +14,7 @@ allwells = "allwells"
 C5PL = "C5PL"
 C5ST = "C5ST"
 
-def Play():
-    ID = input("Please enter Well ID: ")
-    ID = int(ID)
-    with arcpy.da.SearchCursor("C5ST", ["WELLID"], "WELLID = " + str(ID)) as cursor:
-                
-        for row in cursor:
-            print("Well ID is valid")
-            break
-        else:
-            print("Well ID not found.")
-            sys.exit()  #Terminates the function
-        
 
-def Elastic():
-    #discussion best apporach with Barnes
 
   
              

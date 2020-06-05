@@ -15,22 +15,18 @@ import arcpy
 from DataLocation import CWIPL
 import time
 
-def Time(RID):
+def Time():
 
-     TIME = []
-     for row in RID:
-         with arcpy.da.SearchCursor(CWIPL , ["DURATION"], f"RELATEID = '{row}'") as cursor:
-             for row in cursor:
-                 if cursor[0] != None and cursor[0] > 0:
-                     t = cursor[0]/24
-                     TIME.append(t)
-                 elif cursor[0] != None and cursor[0] <= 0 :
-                     t = 0
-                     TIME.append(row)   
-                 else:
-                     t = 0
-                     TIME.append(t)   
+    if cursor[1] != None and cursor[1] > 0:
+        t = cursor[1]/24
+        TIME.append(t)
+    elif cursor[1] != None and cursor[1] <= 0 :
+        t = 0
+        TIME.append(row)   
+    else:
+        t = 0
+        TIME.append(t)   
           
-     return TIME
+    return TIME
     
 

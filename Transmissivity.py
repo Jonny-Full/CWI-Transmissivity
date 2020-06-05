@@ -38,11 +38,8 @@ make things simpiler.
 import numpy as np
 import math
 from scipy.optimize import fsolve
-from Pump import Pump
-from DrawDown import DrawDown
-from getTime import Time
-from CasingRadius import Radius
-from ScreenLength import Screen
+from PumpLogCalc import PumpLog
+from AllWellsCalc import ALLWELLS_DATA
 import time
 
 
@@ -60,24 +57,19 @@ def Calc(RID):
     sw = Co * Q**2 
     Tguess = 1
     sp = 0
-    S = 0.001 #storativity = S temporary constant 
-
-        
+    S = 0.001 #storativity = S temporary constant     
     Q = []
-    Q = Pump(RID)
-    print("Q Done", (time.time()-start_time))    
     s = []
-    s = DrawDown(RID)
-    print("s Done", time.time()-start_time)    
     L = []
-    L = Screen(RID)
-    print("L Done", time.time() - start_time)
     rw = []
-    rw = Radius(RID)
-    print("rw done", time.time() - start_time)
     t = []
-    t = Time(RID)
-    print("t done", time.time() - start_time)
+    Q, t, s = PumpLog(RID)
+    print("Q, t, s Done", (time.time()-start_time))    
+    
+    L, rw = ALLWELL_DATA(RID)
+    print("L, Rw Done", time.time() - start_time)
+
+
     
     for i in range(len(Q)):
         
@@ -93,7 +85,7 @@ def Calc(RID):
     return(Q/(4*math.pi*(s-sw)))*(math.log(2.25*Tguess*t/((rw**2) * S)) + 2*sp)
     
 #x = fsolve(T, 0)
-#Calc(RID)
+Calc(RID)
 #print(Calc(RID))   
 
 
