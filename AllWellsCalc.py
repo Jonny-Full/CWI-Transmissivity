@@ -18,10 +18,17 @@ import time
 
 def ALLWELLS_DATA(RID):
      start_time = time.time()
+     last_time = start_time
      LENGTH = []
      RADIUS = []
-     for row in RID:
-         with arcpy.da.SearchCursor(allwells, ["CASE_DEPTH","DEPTH_DRLL", "CASE_DIAM"], f"RELATEID = '{row}'") as cursor:
+     for item in RID:
+         time1 = time.time()
+         print("Well ID found", time1 - last_time)
+         last_time = time1
+         with arcpy.da.SearchCursor(allwells, ["CASE_DEPTH","DEPTH_DRLL", "CASE_DIAM"], f"RELATEID = '{item}'") as cursor:
+             time1 = time.time()
+             print("Cursor found", time1 - last_time)
+             last_time = time1
              for row in cursor:
                  
                  #Determines Screen Length
@@ -36,18 +43,25 @@ def ALLWELLS_DATA(RID):
                  else:
                      L = 0
                      LENGTH.append(L)
-                     
+                 time1 = time.time()
+                 print("Length found", time1 - last_time)
+                 last_time = time1  
+                 
                  #Finds Casing Radius    
                  if cursor[2] != None and cursor[2] > 0:
                      RW = cursor[2]/24
                      RADIUS.append(RW)
                  else:
                      RW = 0
-                     RADIUS.append(RW)  
-                     
+                     RADIUS.append(RW)
+                 time1 = time.time()
+                 print("Radius found", time1 - last_time)
+                 last_time = time1 
+
+         
      print(time.time() - start_time)         
      return LENGTH, RADIUS
 
 
-
+ALLWELLS_DATA(RID)
 

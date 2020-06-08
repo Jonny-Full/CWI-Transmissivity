@@ -20,9 +20,9 @@ def PumpLog(RID):
     FLOW = []
     TIME = []
     DRAW = []
-    for row in RID:
+    for item in RID:
         with arcpy.da.SearchCursor(CWIPL , ["FLOW_RATE", "DURATION","START_MEAS","PUMP_MEAS"],\
-                                   f"RELATEID = '{row}'") as cursor:
+                                   f"RELATEID = '{item}'") as cursor:
             for row in cursor:
                 
                 #Calculates Flow Rate for Each Well
@@ -65,6 +65,5 @@ def PumpLog(RID):
     print(time.time()-start_time)
     return FLOW, TIME, DRAW
 
-
-
+PumpLog(RID)
     
