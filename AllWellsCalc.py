@@ -7,45 +7,35 @@ Notes:
     This function requires Data Location and Verify to run properly.
     
 Author: Jonny Full
-Version: 5/26/2020
+Version: 6/8/2020
 
 """
 import arcpy
-import numpy as np
 from DataLocation import allwells
-import time
+
 
 
 def ALLWELLS_DATA(RID):
-     start_time = time.time()
-     last_time = start_time
+
      LENGTH = []
      RADIUS = []
-     for item in RID:
-         time1 = time.time()
-         print("Well ID found", time1 - last_time)
-         last_time = time1
-         with arcpy.da.SearchCursor(allwells, ["CASE_DEPTH","DEPTH_DRLL", "CASE_DIAM"], f"RELATEID = '{item}'") as cursor:
-             time1 = time.time()
-             print("Cursor found", time1 - last_time)
-             last_time = time1
+     
+     for well in RID:
+         with arcpy.da.SearchCursor(allwells, ["CASE_DEPTH","DEPTH_DRLL", "CASE_DIAM"],\
+                                   f"RELATEID = '{well}'") as cursor:
              for row in cursor:
-                 
                  #Determines Screen Length
-                 if cursor[0] != None and cursor[0] > 0:
-                     if cursor[1] != None and cursor[1] > 0:
-                         L = cursor[1] - cursor[0]
-                         LENGTH.append(L)
+                 if cursor[0] != None and cursor[0] > 0 and cursor[1] != None and cursor[1] > 0:
+                      L = cursor[1] - cursor[0]
+                      LENGTH.append(L)
                         
-                     else:
+                 elif cursor[1] == None and cursor[1] <= 0:
                          L = cursor[0]
                          LENGTH.append(L)        
                  else:
                      L = 0
                      LENGTH.append(L)
-                 time1 = time.time()
-                 print("Length found", time1 - last_time)
-                 last_time = time1  
+
                  
                  #Finds Casing Radius    
                  if cursor[2] != None and cursor[2] > 0:
@@ -54,14 +44,7 @@ def ALLWELLS_DATA(RID):
                  else:
                      RW = 0
                      RADIUS.append(RW)
-                 time1 = time.time()
-                 print("Radius found", time1 - last_time)
-                 last_time = time1 
-
-         
-     print(time.time() - start_time)         
+                 break
      return LENGTH, RADIUS
-
-
-ALLWELLS_DATA(RID)
+ 
 

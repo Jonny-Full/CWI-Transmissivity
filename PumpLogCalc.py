@@ -7,16 +7,16 @@ Notes:
     This function requires Data Location and Verify to run properly.
     
 Author: Jonny Full
-Version: 5/26/2020
+Version: 6/8/2020
 """
 
 #COMPLETED
 import arcpy
 from DataLocation import CWIPL
 import time
-import timeit
-def PumpLog(RID):
 
+def PumpLog(RID):
+    start = time.time()
     FLOW = []
     TIME = []
     DRAW = []
@@ -44,7 +44,7 @@ def PumpLog(RID):
                      TIME.append(t)
                  elif cursor[1] != None and cursor[1] <= 0 :
                      t = 0
-                     TIME.append(row)   
+                     TIME.append(t)   
                  else:
                      t = 0
                      TIME.append(t)
@@ -61,7 +61,7 @@ def PumpLog(RID):
                  else: 
                      s = cursor[3]
                      DRAW.append(s)
+
     return FLOW, TIME, DRAW
 
-PumpLog(RID)
-    
+
