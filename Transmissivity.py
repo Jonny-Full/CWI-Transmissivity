@@ -39,53 +39,50 @@ import math
 from scipy.optimize import fsolve
 from PumpLogCalc import PumpLog
 from AllWellsCalc import ALLWELLS_DATA
-import time
+
 
 
 
 def Calc(RID):
-    start_time = time.time() 
-    Q = 100    #gpm
-    s = 5     #ft  
-    t = 1     #day  
-    L = 100   #ft  
-    r = 0.25  #ft  not required for calculations but needed for rw
+    Q = [] #gpm
+    s = [] #ft
+    L = [] #day
+    rw = [] #ft
+    t = [] #ft
+    VALUE = [] #ft^2/day
     b = 100   #ft  
-    rw = 0.25 #ft
     Co = 0
-    sw = Co * Q**2 
+    #sw = Co * Q**2 
     T = 1
     sp = 0
     S = 0.001 #storativity = S temporary constant     
 
-    Q = []
-    s = []
-    L = []
-    rw = []
-    t = []
+    Q = [] #gpm
+    s = [] #ft
+    L = [] #day
+    rw = [] #ft
+    t = [] #ft
     VALUE = []
     
     Q, t, s = PumpLog(RID)
-    print ('done')
+
     
     L, rw = ALLWELLS_DATA(RID)
-    print('done 2')
-
-
     
     for i in range(len(Q)):
         T = 1.0
         LastValue = 0
-        while (T - LastValue) >= 0.001:
-            LastValue = T
         #Lb = [L[i]/b]  
         #G =  [2.948 - (7.363*(Lb)) + (11.447*((Lb)**2)) - (4.675*((Lb)**3))]
-#ADD an IF statement here to make sure nothing with a zero gets calculated
-        
         #sp = ((1-Lb)/Lb)*(math.log(b[i]/rw[i])-G)
-            T = (Q[i] /(4*math.pi*(s[i])))*(math.log(2.25*T* t[i] /((rw[i] **2) * S))) 
-        # + 2*sp[i])
-            
+        while (T - LastValue) >= 0.001:
+            LastValue = T
+            if Q[i] > 0 and t[i] > 0 and L[i] > 0 and rw[i] > 0 and s[i] > 0:
+                
+                T = (Q[i] /(4*math.pi*(s[i])))*(math.log(2.25*T* t[i] /((rw[i] **2) * S))) + (2*sp)
+            else:
+                T = 0
+                
         VALUE.append(T)
 
     return VALUE
@@ -94,7 +91,7 @@ def Calc(RID):
 #VALUE = Calc(RID)
 #print(Calc(RID))   
 
-Calc(RID)
+
 
 
 
