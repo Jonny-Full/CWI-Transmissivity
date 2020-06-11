@@ -33,17 +33,16 @@ Created on Mon May 18 09:01:15 2020
 This function should be broken down into smaller helper function, this will
 make things simpiler.
 
-6/8/2020
+6/10/2020
 """
 import math
-from scipy.optimize import fsolve
-from PumpLogCalc import PumpLog
-from AllWellsCalc import ALLWELLS_DATA
+from pump_log_calc import pump_log
+from allwells_calc import allwells_data
 
 
 
 
-def Calc(RID):
+def calc(relate_id):
     Q = [] #gpm
     s = [] #ft
     L = [] #day
@@ -57,39 +56,38 @@ def Calc(RID):
     sp = 0
     S = 0.001 #storativity = S temporary constant     
 
-    Q = [] #gpm
-    s = [] #ft
-    L = [] #day
-    rw = [] #ft
-    t = [] #ft
+    Q = [float()] #gpm
+    s = [float()] #ft
+    t = [float()] #day
+    rw = [float()] #ft
+    L = [float()] #ft
     VALUE = []
     
-    Q, t, s = PumpLog(RID)
+    Q, t, s = pump_log(relate_id)
 
     
-    L, rw = ALLWELLS_DATA(RID)
+    L, rw = allwells_data(relate_id)
     
     for i in range(len(Q)):
         T = 1.0
         LastValue = 0
-        #Lb = [L[i]/b]  
-        #G =  [2.948 - (7.363*(Lb)) + (11.447*((Lb)**2)) - (4.675*((Lb)**3))]
-        #sp = ((1-Lb)/Lb)*(math.log(b[i]/rw[i])-G)
+        Lb = L[i]/b  
+        G =  2.948 - (7.363*(Lb)) + (11.447*((Lb)**2)) - (4.675*((Lb)**3))
+        if L[i] > 0 and rw[i] > 0:
+            sp = ((1-Lb)/Lb)*(math.log(b/rw[i])-G)
+        else:
+            sp = 0
         while (T - LastValue) >= 0.001:
             LastValue = T
             if Q[i] > 0 and t[i] > 0 and L[i] > 0 and rw[i] > 0 and s[i] > 0:
-                
                 T = (Q[i] /(4*math.pi*(s[i])))*(math.log(2.25*T* t[i] /((rw[i] **2) * S))) + (2*sp)
             else:
                 T = 0
-                
+
         VALUE.append(T)
 
     return VALUE
     
-#x = fsolve(T, 0)
-#VALUE = Calc(RID)
-#print(Calc(RID))   
 
 
 
