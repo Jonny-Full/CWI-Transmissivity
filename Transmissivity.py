@@ -47,16 +47,9 @@ def calc(relate_id):
     Co = 0
     #sw = Co * Q**2 
     T = 1
-    sp = 0
-    S = 0.001 #storativity = S temporary constant
-    Q = [float()] #gpm
-    s = [float()] #ft
-    t = [float()] #day
-    rw = [float()] #ft
-    L = [float()] #ft
-    VALUE = []
-    Q, t, s = pump_log(relate_id)
+    S = 0.001 #storativity = S temporary constantL
 
+    Q, t, s = pump_log(relate_id)
     L, rw = allwells_data(relate_id)
 
     for i in range(len(Q)):
@@ -74,7 +67,25 @@ def calc(relate_id):
                 T = (Q[i] /(4*math.pi*(s[i])))*(math.log(2.25*T* t[i] /((rw[i] **2) * S)) + (2*sp))
             else:
                 T = 0
-
         VALUE.append(T)
-
     return VALUE
+
+
+
+"""
+Conduct(TSIV)
+This function transilates the Transmissivity values from Calc into 
+Hydralic conductivity values.
+
+This function requires analyze_wells.TSIV to run.
+-------------------------------------------------------------------------------
+Author: Jonny Full
+Version:6/12/2020
+"""
+def Conduct(TSIV):
+    b = 100
+    hydro_cond = []
+    for i in range(len(TSIV)):
+        K=TSIV[i]/b
+        hydro_cond.append(K)
+    return hydro_cond
