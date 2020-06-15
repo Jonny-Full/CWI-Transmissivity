@@ -8,7 +8,7 @@ Notes:
     -This file requires Data Location, findWells, Transmissivity, and Verify to execute
 
 @author: Jonny Full
-Version: 6/10/2020
+Version: 6/15/2020
 -------------------------------------------------------------------------------
 """
 #COMPLETE
@@ -18,6 +18,7 @@ from Transmissivity import calc, Conduct
 RADIUS = 1000 #meters
 ID = Verify()
 selected_wells = findWells(ID, RADIUS)
+aqui_id = [i[1] for i in selected_wells]
 relate_id = [i[2] for i in selected_wells]
 TSIV = calc(relate_id)
 HYDCONDUCT = Conduct(TSIV)
