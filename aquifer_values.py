@@ -12,7 +12,7 @@ Version: 6/15/2020
 """
 import json
 import arcpy
-from DataLocation import loc
+from DataLocation import loc, allwells
 #from findWells import selectedWells
 def store_sheet():
     input_excel = loc
@@ -37,5 +37,14 @@ def store_sheet():
     outfile.write(store_data)
     return storativity
 
-store_sheet()
- 
+
+def store_atmpt():
+    input_excel = loc
+    sheet_name = "data"
+    memory_table = "in_memory" + "\\" + "memoryTable"
+    #Make sure the memory is empty
+    arcpy.Delete_management(memory_table)
+    arcpy.ExcelToTable_conversion(input_excel, memory_table, sheet_name)
+    table_join = arcpy.AddJoin_management(allwells, "RELATEID", memory_table, "Relateid")
+    fieldlist = arcpy.ListFields(table_join)
+    print(fieldlist)

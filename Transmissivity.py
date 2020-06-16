@@ -37,22 +37,21 @@ from pump_log_calc import pump_log
 from allwells_calc import allwells_data
 
 def calc(relate_id):
-    Q = [] #gpm
-    s = [] #ft
-    L = [] #day
-    rw = [] #ft
-    t = [] #ft
-    VALUE = [] #ft^2/day
+    Q = [float()] #gpm
+    s = [float()] #ft
+    L = [float()] #day
+    rw = [float()] #ft
+    t = [float()] #ft
+    VALUE = [float()] #ft^2/day
     b = 100   #ft  
     Co = 0
-    #sw = Co * Q**2 
     T = 1
-    S = 0.001 #storativity = S temporary constantL
+    S = 0.001 #storativity = S temporary constant
 
     Q, t, s = pump_log(relate_id)
     L, rw = allwells_data(relate_id)
-
     for i in range(len(Q)):
+        sw = [Co * (Q[i]**2)]
         T = 1.0
         LastValue = 0
         Lb = L[i]/b  
@@ -63,11 +62,15 @@ def calc(relate_id):
             sp = 0
         while (T - LastValue) >= 0.001:
             LastValue = T
-            if Q[i] > 0 and t[i] > 0 and L[i] > 0 and rw[i] > 0 and s[i] > 0:
-                T = (Q[i] /(4*math.pi*(s[i])))*(math.log(2.25*T* t[i] /((rw[i] **2) * S)) + (2*sp))
+            if Q[i] is not None and t[i] is not None and L[i] is not None and rw[i] is not None and s[i] is not None:
+                if Q[i] > 0 and t[i] > 0 and L[i] > 0 and rw[i] > 0 and s[i] > 0:
+                    T = (Q[i] /(4*math.pi*(s[i])))*(math.log(2.25*T* t[i] /((rw[i] **2) * S)) + (2*sp))
+                else:
+                    T = 0
             else:
                 T = 0
         VALUE.append(T)
+        VALUE = [t for t in VALUE if t > 0] #removes T = 0 values redesign later
     return VALUE
 
 
