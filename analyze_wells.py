@@ -15,10 +15,10 @@ Version: 6/15/2020
 from Verify import Verify
 from findWells import findWells
 from Transmissivity import calc, Conduct
-RADIUS = 1000 #meters
-ID = Verify()
+ID, rad = Verify()
+RADIUS = int(rad) #meters
 selected_wells = findWells(ID, RADIUS)
-aqui_id = [i[1] for i in selected_wells]
+aqui_id = [i[1] for i in selected_wells] #incorperate into Storativity/ Thickness calculations
 relate_id = [i[2] for i in selected_wells]
 TSIV = calc(relate_id)
 HYDCONDUCT = Conduct(TSIV)

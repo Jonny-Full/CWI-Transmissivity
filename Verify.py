@@ -14,8 +14,7 @@ from DataLocation import CWIPL, CWIST
 import sys
 
 def Verify():
-    ID = "0000593596"
-    #ID = input("Please input a RELATEID number: ")
+    ID = input("Please input a RELATEID number: ")
     with arcpy.da.SearchCursor(CWIPL , ["RELATEID"], f"RELATEID = '{ID}'") as cursor:
         for row in cursor:   
             break
@@ -29,4 +28,6 @@ def Verify():
         else:
             print("RELATEID not found.")
             sys.exit()  #Terminates the function
-    return ID
+    
+    rad = input('Please input the radius from the target well (in meters): ')
+    return ID, rad
