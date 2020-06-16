@@ -6,7 +6,7 @@ from the CWI data.
 Notes:
     This function requires Data Location and Verify to run properly.
 Author: Jonny Full
-Version: 6/10/2020
+Version: 6/16/2020
 """
 
 #COMPLETED
