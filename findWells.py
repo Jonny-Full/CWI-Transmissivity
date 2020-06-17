@@ -29,7 +29,6 @@ def findWells(ID, RADIUS):
             targetWell.append(row) #redefine targetwell
         targetWell = targetWell[0]
     well_data = []
-    with arcpy.da.SearchCursor(allwells, ["SHAPE", "AQUIFER", "RELATEID"], f"AQUIFER = '{targetWell[1]}'") as cursor:         
     with arcpy.da.SearchCursor(allwells, ["SHAPE", "AQUIFER", "RELATEID"], f"AQUIFER = '{targetWell[1]}'") as cursor:
         for row in cursor:
             well_data.append(row)
