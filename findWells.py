@@ -28,24 +28,21 @@ def findWells(ID, RADIUS):
         for row in cursor:
             targetWell.append(row) #redefine targetwell
         targetWell = targetWell[0]
-       
-    #with arcpy.da.SearchCursor(allwells_2_, ["allwells.SHAPE", "allwells.AQUIFER", "C5PL.WELLID"], f"allwells.AQUIFER = '{AQ}'") as cursor:   
     well_data = []
     with arcpy.da.SearchCursor(allwells, ["SHAPE", "AQUIFER", "RELATEID"], f"AQUIFER = '{targetWell[1]}'") as cursor:         
+    with arcpy.da.SearchCursor(allwells, ["SHAPE", "AQUIFER", "RELATEID"], f"AQUIFER = '{targetWell[1]}'") as cursor:
         for row in cursor:
             well_data.append(row)
 
-        
     xy = np.array([[well[0][0], well[0][1]] for well in well_data])
-    
+
     tree = spatial.cKDTree(xy)
-    
+
     selectedWellindex = tree.query_ball_point(targetWell[0], RADIUS) #I am stumped ask Barnes 
     selectedWells = []
     for i in selectedWellindex:
         selectedWells.append(well_data[i])
-    
-       
+
     return selectedWells
             
 

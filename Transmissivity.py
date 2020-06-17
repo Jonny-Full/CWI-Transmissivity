@@ -30,7 +30,7 @@ Version: 6/11/2020
 This function should be broken down into smaller helper function, this will
 make things simpiler.
 
-6/10/2020
+6/17/2020
 """
 import math
 from pump_log_calc import pump_log
