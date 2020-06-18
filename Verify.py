@@ -31,4 +31,3 @@ def Verify():
             sys.exit()  #Terminates the function
     rad = input('Please input the radius from the target well (in meters): ')
     return ID, rad
-Verify()

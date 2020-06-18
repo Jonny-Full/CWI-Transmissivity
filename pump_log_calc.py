@@ -57,7 +57,7 @@ def pump_log_test(relate_id):
     flow = []
     time = []
     draw = []
-    
+
     with arcpy.da.SearchCursor(CWIPL, ["FLOW_RATE", "DURATION", "START_MEAS", "PUMP_MEAS"], f"RELATEID in {tuple(relate_id)}") as cursor:
         for row in cursor:
             if row[0] is not None and row[0] > 0:

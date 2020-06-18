@@ -7,7 +7,6 @@ Author: Jonny Full
 Version: 6/16/2020
 """
 import matplotlib.pyplot as plt
-from matplotlib import colors
 import numpy as np
 
 def plot_T(TSIV):
