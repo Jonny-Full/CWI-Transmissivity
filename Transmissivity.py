@@ -33,24 +33,20 @@ make things simpiler.
 6/18/2020
 """
 import math
-from pump_log_calc import pump_log
-from allwells_calc import allwells_data
 
-def calc(selected_wells):
-    Q = [float()] #gpm
-    s = [float()] #ft
-    L = [float()] #day
-    rw = [float()] #ft
-    t = [float()] #ft
+def calc(pump_log_results, confirmed_wells):
     VALUE = [float()] #ft^2/day
     b = 100   #ft  
     Co = 0
     T = 1
     S = 0.001 #storativity = S temporary constant
 
-    Q, t, s = pump_log(relate_id)
-    L, rw = allwells_data(relate_id)
-    for i in range(len(Q)):
+    Q = [i[0] for i in pump_log_results]
+    t = [i[1] for i in pump_log_results]
+    s = [i[2] for i in pump_log_results]
+    L = [i[0] for i in confirmed_wells]
+    rw = [i[1] for i in confirmed_wells]
+    for i in range(len(rw)):
         sw = [Co * (Q[i]**2)]
         T = 1.0
         LastValue = 0
@@ -70,7 +66,7 @@ def calc(selected_wells):
             else:
                 T = 0
         VALUE.append(T)
-        VALUE = [t for t in VALUE if t > 0] #removes T = 0 values redesign later
+        #VALUE = [t for t in VALUE if t > 0] #removes T = 0 values redesign later
     return VALUE
 
 

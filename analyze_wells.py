@@ -15,18 +15,18 @@ Version: 6/16/2020
 #COMPLETE
 from Verify import Verify
 from findWells import findWells
-#from Transmissivity import calc, Conduct
+from Transmissivity import calc, Conduct
 from data_retrieve import pump_log, allwells_data
-from plots import plot_T
+from plots import plot_T, spacial_T
 
 ID, rad = Verify()
 RADIUS = int(rad) #meters
 candidate_wells = findWells(ID, RADIUS)
 pump_log_results = pump_log(candidate_wells)
 confirmed_wells= allwells_data(pump_log_results)
-#relate_id = [i[2] for i in selected_wells]
+TSIV = calc(pump_log_results, confirmed_wells)
 """
-TSIV = calc(selected_wells)
 HYDCONDUCT = Conduct(TSIV)
 plot_T(TSIV)
+spacial_T(TSIV, location)
 """

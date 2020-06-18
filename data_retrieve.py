@@ -42,7 +42,7 @@ def pump_log(candidate_wells):
                     down = row[2]
             else:
                 down = row[3]
-            value = rate, dur, down, relateid    
+            value = rate, dur, down, relateid    #PICK UP HERE ON 6/19 duplicated IDs
             pump_results.append(value)
     return pump_results
 
