@@ -36,7 +36,7 @@ import math
 from pump_log_calc import pump_log
 from allwells_calc import allwells_data
 
-def calc(relate_id):
+def calc(selected_wells):
     Q = [float()] #gpm
     s = [float()] #ft
     L = [float()] #day

@@ -22,25 +22,24 @@ from scipy import spatial
 def findWells(ID, RADIUS):
       
     targetWell = []        
-    with arcpy.da.SearchCursor(allwells, ['SHAPE', 'AQUIFER'], f"RELATEID = '{ID}'") as cursor: 
-        
+    with arcpy.da.SearchCursor(allwells, ['UTME', 'UTMN', 'AQUIFER'], f"RELATEID = '{ID}'") as cursor: 
         for row in cursor:
             targetWell.append(row) #redefine targetwell
-        targetWell = targetWell[0]
+    data = [targetWell[0][0], targetWell[0][1]]
     well_data = []
-    with arcpy.da.SearchCursor(allwells, ["SHAPE", "AQUIFER", "RELATEID"], f"AQUIFER = '{targetWell[1]}'") as cursor:
+    with arcpy.da.SearchCursor(allwells, ["UTME", "UTMN", "AQUIFER", "RELATEID"], f"AQUIFER = '{targetWell[0][2]}'") as cursor:
         for row in cursor:
             well_data.append(row)
 
-    xy = np.array([[well[0][0], well[0][1]] for well in well_data])
+    xy = np.array([[well[0], well[1]] for well in well_data])
 
     tree = spatial.cKDTree(xy)
-
-    selectedWellindex = tree.query_ball_point(targetWell[0], RADIUS)
-    selectedWells = []
-    for i in selectedWellindex:
-        selectedWells.append(well_data[i])
-    return selectedWells
+    
+    candidate_Well_index = tree.query_ball_point(data, RADIUS)
+    candidateWells = []
+    for i in candidate_Well_index:
+        candidateWells.append(well_data[i])
+    return candidateWells
             
 
 
