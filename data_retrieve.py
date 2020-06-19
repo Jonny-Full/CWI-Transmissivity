@@ -6,7 +6,7 @@ C5PL table and allwells table.
 Notes:
     This function requires Data Location and Verify to run properly.
 Author: Jonny Full
-Version: 6/18/2020
+Version: 6/19/2020
 """
 
 #COMPLETED
@@ -42,8 +42,9 @@ def pump_log(candidate_wells):
                     down = row[2]
             else:
                 down = row[3]
-            value = rate, dur, down, relateid    #PICK UP HERE ON 6/19 duplicated IDs
+            value = rate, dur, down, relateid   
             pump_results.append(value)
+        pump_results.sort(key = lambda x: x[3]) #sorts list by Relate ID number
     return pump_results
 
 def allwells_data(pump_log_results):
@@ -68,4 +69,5 @@ def allwells_data(pump_log_results):
                 radius_well = 0
             data = (screen, radius_well, utm_east, utm_north, relationid)
             confirmed_wells.append(data)
+        confirmed_wells.sort(key = lambda x: x[4]) #sorts by ascending RELATE ID number
     return confirmed_wells
