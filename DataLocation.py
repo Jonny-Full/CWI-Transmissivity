@@ -4,7 +4,7 @@ DataLocation:
 This file references the CWI data set I am using.
 
 By: Jonny Full
-Version: 5/18/2020
+Version: 6/19/2020
 -------------------------------------------------------------------------------
 """
 
@@ -14,5 +14,6 @@ allwells = WORKSPACE + r'\allwells'
 CWIPL = WORKSPACE + r'\C5PL'
 CWIST = WORKSPACE + r"\C5ST"
 loc = r"C:\Users\JonnyA\Desktop\Research\Current Work\PumpingTestData.xlsx"
-loc1 = r"C:\Users\JonnyA\Desktop\Research\Current Work\PumpingTestData.xls"
+THICKNESS = r'C:\Users\JonnyA\Desktop\Research\Test\CWI_hydro.dbf'
+
          

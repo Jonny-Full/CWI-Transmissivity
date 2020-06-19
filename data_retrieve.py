@@ -17,7 +17,7 @@ from DataLocation import allwells, CWIPL
 def pump_log(candidate_wells):
     pump_results = []
     with arcpy.da.SearchCursor(CWIPL, ["FLOW_RATE", "DURATION", "START_MEAS", "PUMP_MEAS", "RELATEID"],\
-                               f"RELATEID in {tuple([i[3] for i in candidate_wells])}") as cursor:
+                               f"RELATEID in {tuple([i[6] for i in candidate_wells])}") as cursor:
         for row in cursor:
             relateid = row[4]
             if row[0] is not None and row[0] > 0:

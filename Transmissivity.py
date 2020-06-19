@@ -40,7 +40,6 @@ def calc(pump_log_results, confirmed_wells):
     Co = 0
     T = 1
     S = 0.001 #storativity = S temporary constant
-
     Q = [i[0] for i in pump_log_results]
     t = [i[1] for i in pump_log_results]
     s = [i[2] for i in pump_log_results]
