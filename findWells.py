@@ -16,6 +16,7 @@ import arcpy
 import numpy as np
 from DataLocation import allwells
 from scipy import spatial
+from data_retrieve import pump_log
 
 
 
@@ -32,27 +33,29 @@ def findWells(ID, RADIUS):
             utm_east = row[0]
             utm_north = row[1]
             aquifer = row[2]
-            relationid = row[6]            
-            if row[3] is not None and row[3] > 0 and row[4] is not None and row[4] > 0:
-                screen = row[4] - row[3]
-            elif row[4] is None or row[4] <= 0:
-                screen = row[3]
-            else:
-                screen = 0
-            #Finds Casing Radius
-            if row[5] is not None and row[5] > 0:
-                radius_well = row[5]/24
-            else:
-                radius_well = 0
-            values = (utm_east, utm_north, aquifer, screen, radius_well, relationid)
+            relationid = row[6]
+            if row[3] is not None and row[4] is not None and row[5] is not None:
+                if row[3] > 0 and row[4] > 0:    
+                    screen = row[4] - row[3]
+                elif row[4] is None or row[4] <= 0:
+                    screen = row[3]
+                else:
+                    screen = 0
+                #Finds Casing Radius
+                if row[5] is not None and row[5] > 0:
+                    radius_well = row[5]/24
+                else:
+                    radius_well = 0
+            #datum = pump_log(relationid)
+            values = (utm_east, utm_north, aquifer, screen, radius_well, datum, relationid)
             well_data.append(values)
     xy = np.array([[well[0], well[1]] for well in well_data])
-
     tree = spatial.cKDTree(xy)
-    
     candidate_Well_index = tree.query_ball_point(data, RADIUS)
     candidateWells = []
     for i in candidate_Well_index:
         candidateWells.append(well_data[i])
+    candidateWells.sort(key = lambda x: x[6]) #sorts by ascending RELATE ID number   
+        #ADD CODE TO FILTER OUT NULL VALUES
     return candidateWells
             
