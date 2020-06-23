@@ -16,8 +16,16 @@ from DataLocation import allwells, CWIPL
 
 def pump_log(candidate_wells):
     pump_results = []
-    with arcpy.da.SearchCursor(CWIPL, ["FLOW_RATE", "DURATION", "START_MEAS", "PUMP_MEAS", "RELATEID"],\
-                               f"RELATEID in {tuple([i[6] for i in candidate_wells])}") as cursor:
+    requested_values = ["FLOW_RATE", "DURATION", "START_MEAS", "PUMP_MEAS", "RELATEID"]
+    where_clause = (
+        "(RELATEID is not NULL) AND "
+        "(FLOW_RATE is not NULL) AND "
+        "(DURATION is not NULL) AND "
+        "(START_MEAS is not NULL) AND "
+        "(PUMP_MEAS is not NULL) AND "
+         f"RELATEID in {tuple([i[5] for i in candidate_wells])}"
+         )
+    with arcpy.da.SearchCursor(CWIPL, requested_values, where_clause) as cursor:
         for row in cursor:
             relateid = row[4]
             if row[0] is not None and row[0] > 0:
@@ -56,18 +64,19 @@ def allwells_data(pump_log_results):
             utm_north = row[4]
             relationid = row[5]
             #Determines Screen Length
-            if row[0] is not None and row[0] > 0 and row[1] is not None and row[1] > 0:
-                screen = row[1] - row[0]
-            elif row[1] is None or row[1] <= 0:
-                screen = row[0]
-            else:
-                screen = 0
+            if row[0] is not None and row[1] is not None and row [2] is not None:
+                if row[0] is not None and row[0] > 0 and row[1] is not None and row[1] > 0:
+                    screen = row[1] - row[0]
+                elif row[1] is None or row[1] <= 0:
+                    screen = row[0]
+                else:
+                    screen = 0
             #Finds Casing Radius
-            if row[2] is not None and row[2] > 0:
-                radius_well = row[2]/24
-            else:
-                radius_well = 0
-            data = (screen, radius_well, utm_east, utm_north, relationid)
-            confirmed_wells.append(data)
+                if row[2] is not None and row[2] > 0:
+                    radius_well = row[2]/24
+                else:
+                    radius_well = 0
+                data = (screen, radius_well, utm_east, utm_north, relationid)
+                confirmed_wells.append(data)
         confirmed_wells.sort(key = lambda x: x[4]) #sorts by ascending RELATE ID number
     return confirmed_wells

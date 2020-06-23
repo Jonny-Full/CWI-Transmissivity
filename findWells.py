@@ -22,13 +22,34 @@ from data_retrieve import pump_log
 
 def findWells(ID, RADIUS):
       
-    targetWell = []        
+    targetWell = []
+         
     with arcpy.da.SearchCursor(allwells, ['UTME', 'UTMN', 'AQUIFER'], f"RELATEID = '{ID}'") as cursor: 
         for row in cursor:
             targetWell.append(row) #redefine targetwell
     data = [targetWell[0][0], targetWell[0][1]]
     well_data = []
-    with arcpy.da.SearchCursor(allwells, ["UTME", "UTMN", "AQUIFER","CASE_DEPTH", "DEPTH_DRLL", "CASE_DIAM", "RELATEID"], f"AQUIFER = '{targetWell[0][2]}'") as cursor:
+    field_names = [
+        "UTME",
+        "UTMN", 
+        "AQUIFER",
+        "CASE_DEPTH", 
+        "DEPTH_DRLL",
+        "CASE_DIAM", 
+        "RELATEID"
+        ]
+
+    where_clause = (
+        "(RELATEID is not NULL) AND "
+        "(AQUIFER is not NULL) AND "
+        "(UTME is not NULL) AND "
+        "(UTMN is not NULL) AND "
+        "(CASE_DEPTH is not NULL) AND "
+        "(DEPTH_DRLL is not NULL) AND "
+        "(CASE_DIAM is not NULL) AND "
+         f"AQUIFER = '{targetWell[0][2]}'"
+        )
+    with arcpy.da.SearchCursor(allwells, field_names , where_clause) as cursor:
         for row in cursor:
             utm_east = row[0]
             utm_north = row[1]
@@ -47,7 +68,7 @@ def findWells(ID, RADIUS):
                 else:
                     radius_well = 0
             #datum = pump_log(relationid)
-            values = (utm_east, utm_north, aquifer, screen, radius_well, datum, relationid)
+            values = (utm_east, utm_north, aquifer, screen, radius_well, relationid) #datum
             well_data.append(values)
     xy = np.array([[well[0], well[1]] for well in well_data])
     tree = spatial.cKDTree(xy)
@@ -55,7 +76,7 @@ def findWells(ID, RADIUS):
     candidateWells = []
     for i in candidate_Well_index:
         candidateWells.append(well_data[i])
-    candidateWells.sort(key = lambda x: x[6]) #sorts by ascending RELATE ID number   
+    candidateWells.sort(key = lambda x: x[5]) #sorts by ascending RELATE ID number   
         #ADD CODE TO FILTER OUT NULL VALUES
     return candidateWells
             
