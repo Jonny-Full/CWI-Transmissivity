@@ -55,28 +55,3 @@ def pump_log(candidate_wells):
         pump_results.sort(key = lambda x: x[3]) #sorts list by Relate ID number
     return pump_results
 
-def allwells_data(pump_log_results):
-    confirmed_wells = []
-    with arcpy.da.SearchCursor(allwells, ["CASE_DEPTH", "DEPTH_DRLL", "CASE_DIAM", "UTME", "UTMN", "RELATEID"],\
-                               f"RELATEID in {tuple([j[3] for j in pump_log_results])}") as cursor:
-        for row in cursor:
-            utm_east = row[3]
-            utm_north = row[4]
-            relationid = row[5]
-            #Determines Screen Length
-            if row[0] is not None and row[1] is not None and row [2] is not None:
-                if row[0] is not None and row[0] > 0 and row[1] is not None and row[1] > 0:
-                    screen = row[1] - row[0]
-                elif row[1] is None or row[1] <= 0:
-                    screen = row[0]
-                else:
-                    screen = 0
-            #Finds Casing Radius
-                if row[2] is not None and row[2] > 0:
-                    radius_well = row[2]/24
-                else:
-                    radius_well = 0
-                data = (screen, radius_well, utm_east, utm_north, relationid)
-                confirmed_wells.append(data)
-        confirmed_wells.sort(key = lambda x: x[4]) #sorts by ascending RELATE ID number
-    return confirmed_wells
