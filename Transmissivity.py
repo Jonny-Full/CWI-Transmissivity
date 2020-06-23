@@ -34,19 +34,19 @@ make things simpiler.
 """
 import math
 
-def calc(pump_log_results, confirmed_wells):
+def calc(confirmed_wells):
     VALUE = [float()] #ft^2/day
     b = 100   #ft  
     Co = 0
     T = 1
     S = 0.001 #storativity = S temporary constant
-    Q = [i[0] for i in pump_log_results]
-    t = [i[1] for i in pump_log_results]
-    s = [i[2] for i in pump_log_results]
-    L = [i[0] for i in confirmed_wells]
-    rw = [i[1] for i in confirmed_wells]
-    for i in range(len(rw)):
-        sw = [Co * (Q[i]**2)]
+    Q = [i[1][0] for i in confirmed_wells]
+    t = [i[1][1] for i in confirmed_wells]
+    s = [i[1][2] for i in confirmed_wells]
+    L = [i[0][3] for i in confirmed_wells]
+    rw = [i[0][4] for i in confirmed_wells]
+    for i in range(len(Q)):
+        #sw = [Co * (Q[i]**2)]
         T = 1.0
         LastValue = 0
         Lb = L[i]/b  

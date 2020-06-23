@@ -68,7 +68,7 @@ def findWells(ID, RADIUS):
                 else:
                     radius_well = 0
             #datum = pump_log(relationid)
-            values = (utm_east, utm_north, aquifer, screen, radius_well, relationid) #datum
+            values = [utm_east, utm_north, aquifer, screen, radius_well, relationid]
             well_data.append(values)
     xy = np.array([[well[0], well[1]] for well in well_data])
     tree = spatial.cKDTree(xy)
