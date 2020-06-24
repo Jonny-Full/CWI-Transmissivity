@@ -15,6 +15,7 @@ from DataLocation import allwells, CWIPL
 
 
 def pump_log(candidate_wells):
+    
     pump_log_wells = []
     requested_values = [
             "FLOW_RATE",

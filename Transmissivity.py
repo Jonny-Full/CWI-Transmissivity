@@ -1,41 +1,62 @@
-"""
-Transmissivity T(x):
-
-This function calculates the Transmissivity for a specific well. This function
-uses the Bradbury & Rothschild method for calculations.
-
-INPUTS:
-    Q = pump rate (gal/min)
-    s = drawdown  (ft)
-    t = time (days)
+"""Calculates Transmissivity and Hydralic Conductivity of every well in the 
+   confirmed_wells table. The method used to calculate the Transmissivity
+   is the Bradbury & Rothschild Method.
+   
+Notes
+-----
+    This function uses imperial units. The relationship of variables and their
+    units are shown below:
+    Q = Pump Rate (ft/day)
+    s = Drawdown (ft)
+    t = Duration of Test (days)
     L = Screen Length (ft)
-    r = Well Radius   (in)
+    r = Well Radius (ft)
     b = Aquifer Thickness (ft)
-    rw = radius of influence (ft)
+    rw = Radius of Influence (ft)
     Co = Step-Drawdown Test
+    T = Transmissivity (ft^2/day)
+    K = Hydralic Conductivity (ft/day)
 
-OUTPUTS:
-Transmissivity (ft^2/day)
+Assumptions
+-----------
+    Radius of Influence = Well Radius
+    The aquifer is infidently long
+    Constant Pump Rate
+    Homogonous Nonleaky Aquifer
+    
+Citration
+---------
+    Bradbury, K. R. & Rothschild, E. R.
+    A COMPUTERIZED TECHNIQUE FOR ESTIMATING THE HYDRAULIC CONDUCTIVITY OF 
+    AQUIFERS FROM SPECIFIC CAPACITY DATA, 
+    Groundwater, 1985, 23, 240-246 
 
-ASSUMPTIONS:
-Radius of Influence = Well Radius
-Aquifer is infidently long
-Constant Pump Rate
-Homogonous Nonleaky Aquifer
 Author: Jonny Full
-Version: 6/18/2020
+Version: 6/24/2020
 -------------------------------------------------------------------------------
-"""
-"""
-This function should be broken down into smaller helper function, this will
-make things simpiler.
-
-6/18/2020
 """
 import math
 
 def calc(confirmed_wells):
-    VALUE = [float()] #ft^2/day
+    """Computes the Transmissivity for every well in confirmed_wells
+    
+    Parameters
+    ----------
+        confirmed_wells: list[[list1][list2]]
+            This is a list of all pertinant information required to plot the wells
+            spacially and calculate Transmissivity.
+    
+            list1 = list[UTME (int), UTMN (int), AQUIFER (str), Screen Length (float), 
+                         Casing Radius (ft), Relate ID (str)]
+    
+            list 2 = list[Pump Rate (float), Duration (float), Drawdown (float), 
+                          Relate ID (str)]
+    Returns
+    -------
+        TSIV: list[float]
+        TSIV represents the calculated Transmissivity for each row in confirmed_wells.
+    """
+    TSIV = [float()] #ft^2/day
     b = 100   #ft  
     Co = 0
     T = 1
@@ -64,23 +85,32 @@ def calc(confirmed_wells):
                     T = 0
             else:
                 T = 0
-        VALUE.append(T)
-        #VALUE = [t for t in VALUE if t > 0] #removes T = 0 values redesign later
-    return VALUE
+        TSIV.append(T)
+        #TSIV = [t for t in TSIV if t > 0] #removes T = 0 values redesign later
+    return TSIV
 
 
-
-"""
-Conduct(TSIV)
-This function transilates the Transmissivity values from Calc into 
-Hydralic conductivity values.
-
-This function requires analyze_wells.TSIV to run.
--------------------------------------------------------------------------------
-Author: Jonny Full
-Version:6/12/2020
-"""
 def Conduct(TSIV):
+    """Converts the Transmissivity values to Hydralic Conductivity
+    
+    Parameters
+    ----------
+    TSIV: list[float]
+    TSIV represents the calculated Transmissivity for each row in confirmed_wells.
+    
+    
+    Returns
+    -------
+    hydro_cond: list[float]
+    hydro_cond represents the calculated hydralic conductivity for each row in
+    TSIV.
+    
+    Notes
+    -----
+    
+    Hydralic Conductivity can be calculated with the following equation:
+        K = T/b
+    """
     b = 100
     hydro_cond = []
     for i in range(len(TSIV)):
