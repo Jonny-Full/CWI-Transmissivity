@@ -27,9 +27,13 @@ def pump_log(candidate_wells):
     where_clause = (
         "(RELATEID is not NULL) AND "
         "(FLOW_RATE is not NULL) AND "
+        "(FLOW_RATE > 0) AND "
         "(DURATION is not NULL) AND "
+        "(DURATION > 0) AND"
         "(START_MEAS is not NULL) AND "
+        "(START_MEAS > 0) AND "
         "(PUMP_MEAS is not NULL) AND "
+        "(PUMP_MEAS > 0) AND "
          f"RELATEID in {tuple([i[5] for i in candidate_wells])}"
          )
     

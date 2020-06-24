@@ -20,6 +20,6 @@ def spacial_T(confirmed_wells, TSIV):
     x = [i[0][0] for i in confirmed_wells]
     y = [i[0][1] for i in confirmed_wells]
     plt.grid(True)
-    plt.scatter(x, y, 12, TSIV)
+    plt.scatter(x, y, 16, TSIV)
     plt.colorbar()
     plt.axis('equal')
