@@ -1,6 +1,4 @@
 """
-A function to calculate and determine the number of wells in CWI that 
-match a given set of parameters.
 
 -------------
 PreRequisites:
@@ -18,7 +16,7 @@ from DataLocation import allwells
 from scipy import spatial
 from data_retrieve import pump_log
 
-
+#Potentially add to same file as pump log data make things more consise.
 
 def findWells(target_well, RADIUS):
     """ Use the target well input by the user to find all wells within a given 
@@ -34,11 +32,11 @@ def findWells(target_well, RADIUS):
         The RELATEID of the well input by the user in Verify.
         Example : '0000123456'
         
-    RADIUS: int [meters]
+    RADIUS: int (meters)
         RADIUS represents a boundry condition for the scope of analysis. 
         Any wells used in future calculations fall within this distance of the
         target well. 
-        Example: 10000 [meters]
+        Example: 10000 (meters)
         
     Returns
     -------
@@ -46,14 +44,16 @@ def findWells(target_well, RADIUS):
         candidate_wells is a list that contains the UTM easting and northing (int),
         Aquifer code (str), screen length (float), casing radius (float), 
         and Relate ID (str). All entries in this list are located within the 
-        RADIUS of the targetwell and draw water from the same aquifer as the target well.
+        RADIUS of the targetwell and draw water from the same aquifer as 
+        the target well. This list is sorted by ascending Relate ID number.
 
     """
     initial_well = []
-    with arcpy.da.SearchCursor(allwells, ['UTME', 'UTMN', 'AQUIFER'], f"RELATEID = '{target_well}'") as cursor: 
+    with arcpy.da.SearchCursor(allwells, ['UTME', 'UTMN', 'AQUIFER'],\
+                               f"RELATEID = '{target_well}'") as cursor: 
         for row in cursor:
-            initial_well.append(row) #redefine targetwell
-    data = [initial_well[0][0], initial_well[0][1]]
+            initial_well.append(row) 
+    data = [initial_well[0][0], initial_well[0][1]] #records UTM coordinates
     well_data = []
     field_names = [
         "UTME",
@@ -96,16 +96,14 @@ def findWells(target_well, RADIUS):
                     radius_well = row[5]/24
                 else:
                     radius_well = 0
-            #datum = pump_log(relationid)
             values = [utm_east, utm_north, aquifer, screen, radius_well, relationid]
             well_data.append(values)
     xy = np.array([[well[0], well[1]] for well in well_data])
     tree = spatial.cKDTree(xy)
-    candidate_Well_index = tree.query_ball_point(data, RADIUS)
+    candidate_Well_index = tree.query_ball_point(data, RADIUS) #finds wells inside the boundary condition
     candidateWells = []
     for i in candidate_Well_index:
         candidateWells.append(well_data[i])
-    candidateWells.sort(key = lambda x: x[5]) #sorts by ascending RELATE ID number   
-        #ADD CODE TO FILTER OUT NULL VALUES
+    candidateWells.sort(key = lambda x: x[5]) #sorts by ascending RELATEID number   
     return candidateWells
             
