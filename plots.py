@@ -16,10 +16,13 @@ def plot_T(TSIV):
     plt.ylabel('Number of entries')
      
 def spacial_T(confirmed_wells, TSIV):
-    #This does not work due to indexing
+    plt.clf()
     x = [i[0][0] for i in confirmed_wells]
     y = [i[0][1] for i in confirmed_wells]
     plt.grid(True)
     plt.scatter(x, y, 16, TSIV)
-    plt.colorbar()
+    cbar = plt.colorbar()
+    cbar.ax.set_ylabel('Transmissivity', rotation = 270)
+    plt.xlabel("UTM Easting")
+    plt.ylabel("UTM Northing")
     plt.axis('equal')

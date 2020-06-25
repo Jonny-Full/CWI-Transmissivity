@@ -44,7 +44,7 @@ def Verify():
            print("RELATEID not found.")
            sys.exit()  #Terminates the function
             
-    with arcpy.da.SearchCursor(CWIST , ["RELATEID"], f"RELATEID = '{ID}'") as cursor:
+    with arcpy.da.SearchCursor(CWIST , ["RELATEID"], f"RELATEID = '{target_well}'") as cursor:
         for row in cursor:   
             break
         else:
