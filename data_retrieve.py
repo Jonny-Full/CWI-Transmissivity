@@ -16,7 +16,6 @@ Version: 6/25/2020
 import arcpy
 import numpy as np
 from scipy import spatial
-from data_retrieve import pump_log
 from DataLocation import allwells, CWIPL
 
 def find_wells(target_well, RADIUS):

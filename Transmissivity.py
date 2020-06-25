@@ -56,7 +56,7 @@ def calc(confirmed_wells):
         TSIV: list[float]
         TSIV represents the calculated Transmissivity for each row in confirmed_wells.
     """
-    TSIV = [float()] #ft^2/day
+    transmissivity_calculated = [float()] #ft^2/day
     b = 100   #ft  
     Co = 0
     T = 1
@@ -85,18 +85,19 @@ def calc(confirmed_wells):
                     T = 0
             else:
                 T = 0
-        TSIV.append(T)
+        transmissivity_calculated.append(T)
         #TSIV = [t for t in TSIV if t > 0] #removes T = 0 values redesign later
-    return TSIV
+    return transmissivity_calculated
 
 
-def Conduct(TSIV):
+def Conduct(transmissivity_calculated):
     """Converts the Transmissivity values to Hydralic Conductivity
     
     Parameters
     ----------
-    TSIV: list[float]
-    TSIV represents the calculated Transmissivity for each row in confirmed_wells.
+    transmissivity_calculated: list[float]
+    transmissivity_calculated represents the calculated Transmissivity for each
+    row in confirmed_wells.
     
     
     Returns
@@ -113,7 +114,7 @@ def Conduct(TSIV):
     """
     b = 100
     hydro_cond = []
-    for i in range(len(TSIV)):
-        K=TSIV[i]/b
+    for i in range(len(transmissivity_calculated)):
+        K=transmissivity_calculated[i]/b
         hydro_cond.append(K)
     return hydro_cond
