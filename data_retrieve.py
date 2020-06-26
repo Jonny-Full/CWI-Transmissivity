@@ -16,7 +16,7 @@ Version: 6/25/2020
 import arcpy
 import numpy as np
 from scipy import spatial
-from DataLocation import allwells, CWIPL
+from data_location import allwells, CWIPL
 
 def find_wells(target_well, RADIUS):
     """ Use the target well input by the user to find all wells within a given 

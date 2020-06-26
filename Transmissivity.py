@@ -53,8 +53,9 @@ def calc(confirmed_wells):
                           Relate ID (str)]
     Returns
     -------
-        TSIV: list[float]
-        TSIV represents the calculated Transmissivity for each row in confirmed_wells.
+        transmissivity_calculated: list[float]
+        transmissivity_calculated represents the calculated Transmissivity for 
+        each row in confirmed_wells.
     """
     transmissivity_calculated = [float()] #ft^2/day
     b = 100   #ft  
