@@ -1,7 +1,14 @@
 """Calculates Transmissivity and Hydralic Conductivity of every well in the 
    confirmed_wells table. The method used to calculate the Transmissivity
    is the Bradbury & Rothschild Method.
-   
+
+Functions
+---------
+
+    calc: Calculates the Transmissivity for each entry in confirmed_wells
+    
+    Conduct: Calculates the Hydralic Conductivity from transmissivity_calculated
+    
 Notes
 -----
     This function uses imperial units. The relationship of variables and their
@@ -105,11 +112,10 @@ def Conduct(transmissivity_calculated):
     -------
     hydro_cond: list[float]
     hydro_cond represents the calculated hydralic conductivity for each row in
-    TSIV.
+    transmissivity_calculated.
     
     Notes
     -----
-    
     Hydralic Conductivity can be calculated with the following equation:
         K = T/b
     """

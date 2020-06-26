@@ -1,10 +1,19 @@
+"""Creates plots of data using matplotlib
 
-"""
-This function is just for playing with matplotlib
+This is a file of helper functions that plots the data calculated from
+Transmissivity.py as a histogram and scatter plot.
 
+Functions
+---------
+plot_histogram_transmissivity:
+    Creates a histogram of the natural logorithem of the calculated Transmissivities.
+    
+plot_spacial_transmissicity:
+    Creates a scatter plot where each point is plotted at its UTM coordinates.
+    Each point is colored baised on which decile its Transmissivity lies in.
 
 Author: Jonny Full
-Version: 6/16/2020
+Version: 6/26/2020
 """
 import matplotlib.pyplot as plt
 import numpy as np

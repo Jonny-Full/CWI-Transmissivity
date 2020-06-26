@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
-"""
-This file verifies that the Well ID is valid in CWI.
-----------------------------------------------------
-This file requires DataLocation to run
+"""Verifies that the user input is valid in the CWI data.
 
-----------------------------------------------------
+This file asks the user to input a Well ID. The ID is then checked in the CWI
+attribute tables to ensure that the Well ID exists. The user is then prompted
+to input a radial distance. This distance is a boundary condition for the 
+sample size.
 
 Author: Jonny Full
 Version: 6/24/2020

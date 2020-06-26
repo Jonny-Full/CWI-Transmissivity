@@ -15,11 +15,24 @@ import json
 import arcpy
 from data_location import loc, allwells
 #from findWells import selectedWells
-def store_sheet():
+def store_sheet(loc):
     """Retrieves pump test data from a spreadsheet and converts it to a json
        file for future use.
     
+    This function reads Justin Blum's pump test spreadsheet. The Relate ID and
+    any Storativity values that are greater than zero and not null are then
+    recorded. These are then dumped into a .json file for future use.
     
+    Parameters
+    ----------
+    loc: Excel Spreadsheet
+    This spreadsheet has data from every pumping test performed in Minnesota from
+    the last 57 years.
+    
+    Notes
+    -----
+    This function only needs to be executed once for the .json file to be created.
+    The spreadsheet is not currently being updated so the data set will not change.
     """
     input_excel = loc
     sheet_name = "data"
@@ -45,6 +58,7 @@ def store_sheet():
 
 
 def store_atmpt():
+    #May remove just was experimenting
     input_excel = loc
     sheet_name = "data"
     memory_table = "in_memory" + "\\" + "memoryTable"

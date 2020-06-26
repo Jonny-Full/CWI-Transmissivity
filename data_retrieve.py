@@ -1,16 +1,21 @@
 # -*- coding: utf-8 -*-
-"""
-The functions below retrieve data from the allwells and C5PL table and organize
+"""The functions below retrieve data from the allwells and C5PL table and organize
 them into one table for analysis.
 
 Functions
 ---------
-        findWells
+find_wells: Retrieves data regarding well location and well construction. 
+This function only selects wells within an input radial distance from the
+target_well and draws water from the same aquifer as the target_well.
 
-Notes:
-    This function requires Data Location and Verify to run properly.
+pump_log: Uses the wells retrieved from find_wells to select specific capacity
+data from the CWI Pump Log table.
+
+data_organization: Combines the data retrieved from find_wells and pump_log.
+This creates one large table where each entry is related by Relate ID.
+
 Author: Jonny Full
-Version: 6/25/2020
+Version: 6/26/2020
 """
 
 import arcpy
@@ -46,6 +51,11 @@ def find_wells(target_well, RADIUS):
         and Relate ID (str). All entries in this list are located within the 
         RADIUS of the targetwell and draw water from the same aquifer as 
         the target well. This list is sorted by ascending Relate ID number.
+    
+    Notes
+    -----
+    The casing diameter value (inches) is converted to a radius and from inches
+    to feet.
 
     """
     initial_well = []
@@ -109,6 +119,43 @@ def find_wells(target_well, RADIUS):
 
 def pump_log(candidate_wells):
     
+    """Uses candidate_wells to retrieve data from the CWI Pump Log attribute
+       table.
+       
+    Retrieves specific capcity test data from the CWI Pump Log table. In order
+    for a well to be considered, it must have the same Relate ID as one or
+    more entries in candidate wells. This function retrieves data regarding
+    pump rate, duration of the specific capacity test, Static Water Level, and
+    Pumping Water Level (after the pumping has stopped). These are then recorded
+    in a list for analysis.
+    
+    Parameters
+    ----------
+    candidate_wells: list
+        candidate_wells is a list that contains the UTM easting and northing (int),
+        Aquifer code (str), screen length (float), casing radius (float), 
+        and Relate ID (str). All entries in this list are located within the 
+        RADIUS of the targetwell and draw water from the same aquifer as 
+        the target well. This list is sorted by ascending Relate ID number.
+        
+    Returns
+    -------
+    pump_log_wells: list
+        pump_log_wells is a list that contains the Pump Rate (float),
+        Duration (float), Drawdown (float), and Relate ID (str). All entries
+        in this list must also exist in candidate_wells and all of their
+        respective field must be greater than zero and not null. This list is
+        sorted by ascending Relate ID number.
+        
+    Notes
+    -----
+    
+    The pump rate data is converted from gallons per minute [gpm] to cubic feet 
+    per day [ft^3/day]. 
+    
+    The test duration is converted from hours to days.
+    
+    """
     pump_log_wells = []
     requested_values = [
             "FLOW_RATE",
@@ -162,6 +209,43 @@ def pump_log(candidate_wells):
     return pump_log_wells
 
 def data_organization(candidate_wells, pump_log_results):
+    """This function organizes the candidate_wells and the pump_log_results
+    lists into one large data set.
+    
+    This function creates one large data set that relates the candidate_wells
+    and pump_log_results lists into one large list that is connected by
+    Relate ID. This function filters out entries that do not exist only one
+    of the two tables. The function also includes entries that have multiple
+    entries in either table.
+    
+    Parameters
+    ----------
+    candidate_wells: list
+        candidate_wells is a list that contains the UTM easting and northing (int),
+        Aquifer code (str), screen length (float), casing radius (float), 
+        and Relate ID (str). All entries in this list are located within the 
+        RADIUS of the targetwell and draw water from the same aquifer as 
+        the target well. This list is sorted by ascending Relate ID number.
+        
+    pump_log_results: list
+        pump_log_wells is a list that contains the Pump Rate (float),
+        Duration (float), Drawdown (float), and Relate ID (str). All entries
+        in this list must also exist in candidate_wells and all of their
+        respective field must be greater than zero and not null. This list is
+        sorted by ascending Relate ID number.
+        
+    Results
+    -------
+    confirmed_wells: list[list1, list2]
+        This is a list of all pertinant information required to plot the wells
+        spacially and calculate Transmissivity.
+    
+        list1 = list[UTME (int), UTMN (int), AQUIFER (str), Screen Length (float), 
+                     Casing Radius (ft), Relate ID (str)]
+    
+        list 2 = list[Pump Rate (float), Duration (float), Drawdown (float), 
+                      Relate ID (str)]
+    """
     confirmed_wells = []
     for item in pump_log_results:
         for row in candidate_wells:    
