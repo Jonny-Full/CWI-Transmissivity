@@ -21,7 +21,7 @@ Version: 6/26/2020
 import arcpy
 import numpy as np
 from scipy import spatial
-from data_location import allwells, CWIPL
+from data_location import allwells, CWIPL, THICKNESS
 
 def find_wells(target_well, RADIUS):
     """ Use the target well input by the user to find all wells within a given 
@@ -86,7 +86,7 @@ def find_wells(target_well, RADIUS):
         "(DEPTH_DRLL > 0) AND "
         "(CASE_DIAM is not NULL) AND "
         "(CASE_DIAM > 0) AND "
-         f"AQUIFER = {initial_well[0][2]}"
+         f"AQUIFER = '{initial_well[0][2]}'"
         )
     with arcpy.da.SearchCursor(allwells, field_names , where_clause) as cursor:
         for row in cursor:
@@ -208,7 +208,29 @@ def pump_log(candidate_wells):
         pump_log_wells.sort(key = lambda x: x[3]) #sorts list by Relate ID number
     return pump_log_wells
 
-def data_organization(candidate_wells, pump_log_results):
+
+def aquifer_thickness(candidate_wells):
+    thickness_aquired = []
+    
+    requested_values = [
+           "AQ_THICK",
+           "WELLID"
+            ]
+    where_clause = (
+        "(WELLID is not NULL) AND "
+        "(AQ_THICK is not NULL) AND "
+        "(AQ_THICK > 0) AND "
+         f"WELLID in {tuple([i[5] for i in candidate_wells])}"
+         )
+    with arcpy.da.SearchCursor(THICKNESS, requested_values, where_clause) as cursor:
+        for row in cursor:
+            thickness_values = row[0]
+            wellid = row[1]
+            info = [thickness_values, wellid]
+            thickness_aquired.append(info)
+    return thickness_aquired
+
+def data_organization(candidate_wells, pump_log_results, thickness_data):
     """This function organizes the candidate_wells and the pump_log_results
     lists into one large data set.
     
@@ -248,9 +270,14 @@ def data_organization(candidate_wells, pump_log_results):
     """
     confirmed_wells = []
     for item in pump_log_results:
-        for row in candidate_wells:    
-            if row[5] == item[3]:
-                value = [row, item]
-        confirmed_wells.append(value)
+        for row in candidate_wells:
+            for data in thickness_data:
+                if row[5] == item[3] == data[1]:
+                    value = [row, item, data]
+                    confirmed_wells.append(value)
     return confirmed_wells
 
+
+
+            
+            

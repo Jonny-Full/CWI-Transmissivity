@@ -64,8 +64,7 @@ def calc(confirmed_wells):
         transmissivity_calculated represents the calculated Transmissivity for 
         each row in confirmed_wells.
     """
-    transmissivity_calculated = [float()] #ft^2/day
-    b = 100   #ft  
+    transmissivity_calculated = [float()] #ft^2/day  
     Co = 0
     T = 1
     S = 0.001 #storativity = S temporary constant
@@ -74,14 +73,15 @@ def calc(confirmed_wells):
     s = [i[1][2] for i in confirmed_wells]
     L = [i[0][3] for i in confirmed_wells]
     rw = [i[0][4] for i in confirmed_wells]
+    b = [i[2][0] for i in confirmed_wells]
     for i in range(len(Q)):
         #sw = [Co * (Q[i]**2)]
         T = 1.0
         LastValue = 0
-        Lb = L[i]/b  
+        Lb = L[i]/b[i]  
         G = 2.948 - (7.363*(Lb)) + (11.447*((Lb)**2)) - (4.675*((Lb)**3))
         if L[i] > 0 and rw[i] > 0:
-            sp = ((1-Lb)/Lb)*(math.log(b/rw[i])-G)
+            sp = ((1-Lb)/Lb)*(math.log(b[i]/rw[i])-G)
         else:
             sp = 0
         while (T - LastValue) >= 0.001:

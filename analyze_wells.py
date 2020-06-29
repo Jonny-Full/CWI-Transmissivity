@@ -23,14 +23,15 @@ Version: 6/26/2020
 #COMPLETE
 from Verify import Verify
 from Transmissivity import calc, Conduct
-from data_retrieve import find_wells, data_organization, pump_log
+from data_retrieve import find_wells, data_organization, pump_log, aquifer_thickness
 from plots import plot_histogram_transmissivity, plot_spacial_transmissivity
 
 target_well, rad = Verify()
 RADIUS = int(rad) #meters
 candidate_wells = find_wells(target_well, RADIUS)
 pump_log_results = pump_log(candidate_wells)
-confirmed_wells = data_organization(candidate_wells, pump_log_results)
+thickness_data = aquifer_thickness(candidate_wells)
+confirmed_wells = data_organization(candidate_wells, pump_log_results, thickness_data)
 transmissivity_calculated = calc(confirmed_wells)
 transmissivity_calculated.pop(0)
 HYDCONDUCT = Conduct(transmissivity_calculated)
