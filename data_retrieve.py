@@ -60,7 +60,7 @@ def find_wells(target_well, RADIUS):
     """
     initial_well = []
     with arcpy.da.SearchCursor(allwells, ['UTME', 'UTMN', 'AQUIFER'],\
-                               f"RELATEID = '{target_well}'") as cursor: 
+                               f"WELLID = {target_well}") as cursor: 
         for row in cursor:
             initial_well.append(row) 
     data = [initial_well[0][0], initial_well[0][1]] #records UTM coordinates
@@ -72,11 +72,11 @@ def find_wells(target_well, RADIUS):
         "CASE_DEPTH", 
         "DEPTH_DRLL",
         "CASE_DIAM", 
-        "RELATEID"
+        "WELLID"
         ]
 
     where_clause = (
-        "(RELATEID is not NULL) AND "
+        "(WELLID is not NULL) AND "
         "(AQUIFER is not NULL) AND "
         "(UTME is not NULL) AND "
         "(UTMN is not NULL) AND "
@@ -86,7 +86,7 @@ def find_wells(target_well, RADIUS):
         "(DEPTH_DRLL > 0) AND "
         "(CASE_DIAM is not NULL) AND "
         "(CASE_DIAM > 0) AND "
-         f"AQUIFER = '{initial_well[0][2]}'"
+         f"AQUIFER = {initial_well[0][2]}"
         )
     with arcpy.da.SearchCursor(allwells, field_names , where_clause) as cursor:
         for row in cursor:
@@ -114,7 +114,7 @@ def find_wells(target_well, RADIUS):
     candidateWells = []
     for i in candidate_Well_index:
         candidateWells.append(well_data[i])
-    candidateWells.sort(key = lambda x: x[5]) #sorts by ascending RELATEID number   
+    candidateWells.sort(key = lambda x: x[5]) #sorts by ascending WELLID number   
     return candidateWells
 
 def pump_log(candidate_wells):
@@ -162,11 +162,11 @@ def pump_log(candidate_wells):
             "DURATION", 
             "START_MEAS", 
             "PUMP_MEAS", 
-            "RELATEID"
+            "WELLID"
             ]
     
     where_clause = (
-        "(RELATEID is not NULL) AND "
+        "(WELLID is not NULL) AND "
         "(FLOW_RATE is not NULL) AND "
         "(FLOW_RATE > 0) AND "
         "(DURATION is not NULL) AND "
@@ -175,12 +175,12 @@ def pump_log(candidate_wells):
         "(START_MEAS > 0) AND "
         "(PUMP_MEAS is not NULL) AND "
         "(PUMP_MEAS > 0) AND "
-         f"RELATEID in {tuple([i[5] for i in candidate_wells])}"
+         f"WELLID in {tuple([i[5] for i in candidate_wells])}"
          )
     
     with arcpy.da.SearchCursor(CWIPL, requested_values, where_clause) as cursor:
         for row in cursor:
-            relateid = row[4]
+            wellid = row[4]
             if row[0] > 0:
                 rate = row[0]
                 rate = rate*192.5 #convert from gal/min to ft^3/day
@@ -203,7 +203,7 @@ def pump_log(candidate_wells):
                     down = row[2]
             else:
                 down = row[3]
-            value = [rate, dur, down, relateid]   
+            value = [rate, dur, down, wellid]   
             pump_log_wells.append(value)
         pump_log_wells.sort(key = lambda x: x[3]) #sorts list by Relate ID number
     return pump_log_wells

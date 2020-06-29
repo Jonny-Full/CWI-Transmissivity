@@ -9,7 +9,7 @@ Author: Jonny Full
 Version: 6/24/2020
 """
 import arcpy
-from DataLocation import CWIPL, CWIST
+from data_location import CWIPL, allwells
 import sys
 
 def Verify():
@@ -35,19 +35,19 @@ def Verify():
     
     """
     target_well = input("Please input a WellID number: ") #This is easier/ more simple for the user
-    target_well = "0000" + target_well
-    with arcpy.da.SearchCursor(CWIPL , ["RELATEID"], f"RELATEID = '{target_well}'") as cursor:
+    #target_well = "0000" + target_well
+    with arcpy.da.SearchCursor(CWIPL , ["WELLID"], f"WELLID = {target_well}") as cursor:
         for row in cursor:   
             break
         else:
-           print("RELATEID not found.")
+           print("Well ID not found.")
            sys.exit()  #Terminates the function
             
-    with arcpy.da.SearchCursor(CWIST , ["RELATEID"], f"RELATEID = '{target_well}'") as cursor:
+    with arcpy.da.SearchCursor(allwells , ["WELLID"], f"WELLID = {target_well}") as cursor:
         for row in cursor:   
             break
         else:
-            print("RELATEID not found.")
+            print("Well ID not found.")
             sys.exit()  #Terminates the function
     rad = input('Please input the radius from the target well (in meters): ')
     return target_well, rad
