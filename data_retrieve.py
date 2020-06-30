@@ -210,6 +210,29 @@ def pump_log(candidate_wells):
 
 
 def aquifer_thickness(candidate_wells):
+    """Uses the Well ID from candidate_wells to retrieve data about aquifer
+    thickness. 
+    
+    This function retrieves data regarding aquifer thickness from the CWI_HYDRO
+    (THICKNESS) attribute table supplied by Rich Soule from the Minnesota
+    Department of Health. The data in this table is queried using the Well ID
+    values from candidate_wells. This data will then be returned to analyize_wells
+    and then appended to the confirmed_wells table for analysis.
+    
+    Parameters
+    ----------
+    candidate_wells: list
+        candidate_wells is a list that contains the UTM easting and northing (int),
+        Aquifer code (str), screen length (float), casing radius (float), 
+        and Relate ID (str). All entries in this list are located within the 
+        RADIUS of the targetwell and draw water from the same aquifer as 
+        the target well. This list is sorted by ascending Relate ID number.
+        
+    Returns
+    -------
+    thickness_aquired: list
+        A list of Well ID (long) and aquifer thickness values(float).
+    """
     thickness_aquired = []
     
     requested_values = [
