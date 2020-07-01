@@ -74,28 +74,31 @@ def calc(confirmed_wells):
     L = [i[0][3] for i in confirmed_wells]
     rw = [i[0][4] for i in confirmed_wells]
     b = [i[2][0] for i in confirmed_wells]
+    TEARS = []
     for i in range(len(Q)):
         #sw = [Co * (Q[i]**2)]
         T = 1.0
         LastValue = 0
-        Lb = L[i]/b[i]  
-        G = 2.948 - (7.363*(Lb)) + (11.447*((Lb)**2)) - (4.675*((Lb)**3))
         if L[i] > 0 and rw[i] > 0:
-            sp = ((1-Lb)/Lb)*(math.log(b[i]/rw[i])-G)
+             Lb = L[i]/b[i]
+             G = 2.948 - (7.363*(Lb)) + (11.447*((Lb)**2)) - (4.675*((Lb)**3))
+             sp = ((1-Lb)/Lb)*(math.log(b[i]/rw[i])-G)
+             TEARS.append(Lb)
         else:
             sp = 0
         while (T - LastValue) >= 0.001:
             LastValue = T
             if Q[i] is not None and t[i] is not None and L[i] is not None and rw[i] is not None and s[i] is not None:
                 if Q[i] > 0 and t[i] > 0 and L[i] > 0 and rw[i] > 0 and s[i] > 0:
-                    T = (Q[i] /(4*math.pi*(s[i])))*(math.log(2.25*T* t[i] /((rw[i] **2) * S)) + (2*sp))
+                    T = (Q[i]/(4*math.pi*(s[i])))*(math.log((2.25*T* t[i])/((rw[i]**2) * S)) + (2*sp))
                 else:
                     T = 0
             else:
                 T = 0
         transmissivity_calculated.append(T)
+        
         #TSIV = [t for t in TSIV if t > 0] #removes T = 0 values redesign later
-    return transmissivity_calculated
+    return transmissivity_calculated, TEARS
 
 
 def Conduct(transmissivity_calculated):

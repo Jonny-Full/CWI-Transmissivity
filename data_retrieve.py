@@ -4,7 +4,7 @@ them into one table for analysis.
 
 Functions
 ---------
-find_wells: Retrieves data regarding well location and well construction. 
+find_wells: Retrieves data regarding well location and well construction.
 This function only selects wells within an input radial distance from the
 target_well and draws water from the same aquifer as the target_well.
 
@@ -17,13 +17,12 @@ This creates one large table where each entry is related by Relate ID.
 Author: Jonny Full
 Version: 6/26/2020
 """
-
-import arcpy
 import numpy as np
 from scipy import spatial
+import arcpy
 from data_location import allwells, CWIPL, THICKNESS
 
-def find_wells(target_well, RADIUS):
+def find_wells(target_well, radius):
     """ Use the target well input by the user to find all wells within a given 
     distance of the target well.
     
@@ -110,12 +109,12 @@ def find_wells(target_well, RADIUS):
             well_data.append(values)
     xy = np.array([[well[0], well[1]] for well in well_data])
     tree = spatial.cKDTree(xy)
-    candidate_Well_index = tree.query_ball_point(data, RADIUS) #finds wells inside the boundary condition
-    candidateWells = []
-    for i in candidate_Well_index:
-        candidateWells.append(well_data[i])
-    candidateWells.sort(key = lambda x: x[5]) #sorts by ascending WELLID number   
-    return candidateWells
+    candidate_well_index = tree.query_ball_point(data, radius) #finds wells inside the boundary condition
+    candidate_wells = []
+    for i in candidate_well_index:
+        candidate_wells.append(well_data[i])
+    candidate_wells.sort(key = lambda x: x[5]) #sorts by ascending WELLID number   
+    return candidate_wells
 
 def pump_log(candidate_wells):
     
