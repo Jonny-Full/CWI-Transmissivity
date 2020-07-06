@@ -109,7 +109,7 @@ def calc(confirmed_wells):
     return transmissivity_calculated
 
 
-def Conduct(transmissivity_calculated):
+def Conduct(confirmed_wells, transmissivity_calculated):
     """Converts the Transmissivity values to Hydralic Conductivity
     
     Parameters
@@ -130,9 +130,9 @@ def Conduct(transmissivity_calculated):
     Hydralic Conductivity can be calculated with the following equation:
         K = T/b
     """
-    b = 100 #need to include confirmed wells
+    b = [i[2][0] for i in confirmed_wells]
     hydro_cond = []
     for i in range(len(transmissivity_calculated)):
-        K=transmissivity_calculated[i]/b
+        K=transmissivity_calculated[i]/b[i]
         hydro_cond.append(K)
     return hydro_cond
