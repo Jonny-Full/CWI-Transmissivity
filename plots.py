@@ -109,7 +109,7 @@ def plot_spacial_transmissivity(target_well, radius, confirmed_wells, transmissi
             value = 10
         distribute_t.append(value)
     sns.cubehelix_palette(dark=.3, light=.8, as_cmap=True)
-    sns.scatterplot(x, y, hue = distribute_t, palette = "Set2")
+    sns.scatterplot(x, y, hue = distribute_t, palette = "Set2") #Set2 allows for the gradient
     plt.title(f"Transmissivity for Wells within {radius} meters of Well ID {target_well}")
     plt.xlabel("UTM Easting")
     plt.ylabel("UTM Northing")

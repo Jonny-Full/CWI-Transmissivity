@@ -64,7 +64,7 @@ def calc(confirmed_wells):
         transmissivity_calculated represents the calculated Transmissivity for 
         each row in confirmed_wells.
     """
-    transmissivity_calculated = [float()] #ft^2/day  
+    transmissivity_calculated = [] #ft^2/day  
     Co = 0
     T = 1
     S = 0.001 #storativity = S temporary constant
@@ -74,16 +74,24 @@ def calc(confirmed_wells):
     L = [i[0][3] for i in confirmed_wells]
     rw = [i[0][4] for i in confirmed_wells]
     b = [i[2][0] for i in confirmed_wells]
-    TEARS = []
+    
     for i in range(len(Q)):
         #sw = [Co * (Q[i]**2)]
         T = 1.0
         LastValue = 0
         if L[i] > 0 and rw[i] > 0:
              Lb = L[i]/b[i]
+             """
+             There are errors in the CWI_hydro table data. This data may
+             describes an aquifer setting where the well penetrates through
+             multiple aquifers. If this is the case, we will assume that the
+             well only penetrates the entire aquifer based on the data
+             available. This can be seen with the logic below.
+             """
+             if Lb > 1:
+                Lb = 1
              G = 2.948 - (7.363*(Lb)) + (11.447*((Lb)**2)) - (4.675*((Lb)**3))
              sp = ((1-Lb)/Lb)*(math.log(b[i]/rw[i])-G)
-             TEARS.append(Lb)
         else:
             sp = 0
         while (T - LastValue) >= 0.001:
@@ -98,7 +106,7 @@ def calc(confirmed_wells):
         transmissivity_calculated.append(T)
         
         #TSIV = [t for t in TSIV if t > 0] #removes T = 0 values redesign later
-    return transmissivity_calculated, TEARS
+    return transmissivity_calculated
 
 
 def Conduct(transmissivity_calculated):
@@ -122,7 +130,7 @@ def Conduct(transmissivity_calculated):
     Hydralic Conductivity can be calculated with the following equation:
         K = T/b
     """
-    b = 100
+    b = 100 #need to include confirmed wells
     hydro_cond = []
     for i in range(len(transmissivity_calculated)):
         K=transmissivity_calculated[i]/b
