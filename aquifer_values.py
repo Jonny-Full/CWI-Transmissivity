@@ -42,11 +42,11 @@ def store_sheet(loc):
     arcpy.ExcelToTable_conversion(input_excel, memory_table, sheet_name)
     storativity = {}
     field_indices = {}
-    fields = ['Relate_ID', 'Storativity']
+    fields = ['Well_ID', 'Storativity']
     for i, field in enumerate(fields):
         storativity[field] = []
         field_indices[i] = field
-    with arcpy.da.SearchCursor(memory_table, ['Relateid', 'testS']) as cursor:
+    with arcpy.da.SearchCursor(memory_table, ['WellID', 'testS']) as cursor:
         for row in cursor:
             for i in range(len(row)):
                 if row[1] != 0 and row[1] is not None:
@@ -56,15 +56,23 @@ def store_sheet(loc):
     outfile.write(store_data)
     return storativity
 
-
-def store_atmpt():
-    #May remove just was experimenting
+def storetivity_data_check(loc):
     input_excel = loc
     sheet_name = "data"
     memory_table = "in_memory" + "\\" + "memoryTable"
-    #Make sure the memory is empty
+    #Makes sure memory_table is empty
     arcpy.Delete_management(memory_table)
     arcpy.ExcelToTable_conversion(input_excel, memory_table, sheet_name)
-    table_join = arcpy.AddJoin_management(allwells, "RELATEID", memory_table, "Relateid")
-    fieldlist = arcpy.ListFields(table_join)
-    print(fieldlist)
+    STORE = []
+    with arcpy.da.SearchCursor(memory_table, ['testS', 'WellID']) as cursor:
+        for row in cursor:
+            if row[0] != 0 and row[0] is not None:
+                STORE.append(row)
+    return STORE
+
+def opie(STORE):
+    USEFUL = []
+    with arcpy.da.SearchCursor(allwells, ['UTME', 'UTMN', 'AQUIFER', 'WELLID'], f"WELLID in {tuple([i[1] for i in STORE])}") as cursor:
+        for row in cursor:
+            USEFUL.append(row)
+    return USEFUL
