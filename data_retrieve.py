@@ -177,7 +177,9 @@ def pump_log(candidate_wells):
             #Calculates pump duration in days
             dur = row[1]/24
             #Calculates Drawdown
-            down = row[3] - row[2] # how can we filter drawdown = 0 values
+            down = row[3] - row[2] 
+            if down <= 0: #filters out entries where drawdown equals 0
+                continue
             value = [rate, dur, down, wellid]   
             pump_log_wells.append(value)
         pump_log_wells.sort(key = lambda x: x[3]) #sorts list by Relate ID number
