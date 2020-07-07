@@ -180,28 +180,18 @@ def pump_log(candidate_wells):
     with arcpy.da.SearchCursor(CWIPL, requested_values, where_clause) as cursor:
         for row in cursor:
             wellid = row[4]
-            if row[0] > 0:
-                rate = row[0]
-                rate = rate*192.5 #convert from gal/min to ft^3/day
-            elif row[0] <= 0 :
-                rate = 0
-            else:
-                rate = 0
+            #Calculates pump rate
+            rate = row[0]*192.5 #converts from gal/min to ft^3/day
             #Calculates pump duration in days
-            if row[1] > 0:
-                dur = row[1]/24
-            elif row[1] <= 0:
-                dur = 0
-            else:
-                dur = 0
+            dur = row[1]/24
             #Calculates Drawdown
-            if row[2] > 0:
-                if row[3] > 0:
-                    down = row[3] - row[2]
-                else:
-                    down = row[2]
-            else:
-                down = row[3]
+#            if row[2] > 0:
+#                if row[3] > 0:
+            down = row[3] - row[2]
+#                else:
+#                    down = row[2]
+#            else:
+#                down = row[3]
             value = [rate, dur, down, wellid]   
             pump_log_wells.append(value)
         pump_log_wells.sort(key = lambda x: x[3]) #sorts list by Relate ID number

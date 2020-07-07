@@ -99,10 +99,6 @@ def calc(confirmed_wells):
             if Q[i] is not None and t[i] is not None and L[i] is not None and rw[i] is not None and s[i] is not None:
                 if Q[i] > 0 and t[i] > 0 and L[i] > 0 and rw[i] > 0 and s[i] > 0:
                     T = (Q[i]/(4*math.pi*(s[i])))*(math.log((2.25*T* t[i])/((rw[i]**2) * S)) + (2*sp))
-                else:
-                    T = 0
-            else:
-                T = 0
         transmissivity_calculated.append(T)
         
         #TSIV = [t for t in TSIV if t > 0] #removes T = 0 values redesign later
