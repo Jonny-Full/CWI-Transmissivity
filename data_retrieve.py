@@ -93,18 +93,10 @@ def find_wells(target_well, radius):
             utm_north = row[1]
             aquifer = row[2]
             relationid = row[6]
-            if row[3] is not None and row[4] is not None and row[5] is not None:
-                if row[3] > 0 and row[4] > 0:    
-                    screen = row[4] - row[3]
-                elif row[4] is None or row[4] <= 0:
-                    screen = row[3]
-                else:
-                    screen = 0
-                #Finds Casing Radius
-                if row[5] is not None and row[5] > 0:
-                    radius_well = row[5]/24
-                else:
-                    radius_well = 0
+            #Calculates Screen Length
+            screen = row[4] - row[3]
+            #Calculates casing radius
+            radius_well = row[5]/24
             values = [utm_east, utm_north, aquifer, screen, radius_well, relationid]
             well_data.append(values)
     xy = np.array([[well[0], well[1]] for well in well_data])
@@ -185,13 +177,7 @@ def pump_log(candidate_wells):
             #Calculates pump duration in days
             dur = row[1]/24
             #Calculates Drawdown
-#            if row[2] > 0:
-#                if row[3] > 0:
-            down = row[3] - row[2]
-#                else:
-#                    down = row[2]
-#            else:
-#                down = row[3]
+            down = row[3] - row[2] # how can we filter drawdown = 0 values
             value = [rate, dur, down, wellid]   
             pump_log_wells.append(value)
         pump_log_wells.sort(key = lambda x: x[3]) #sorts list by Relate ID number
