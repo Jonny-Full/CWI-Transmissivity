@@ -36,6 +36,8 @@ def plot_histogram_transmissivity(transmissivity_calculated):
     values. The histogram has 50 bars to represent a clear distribution.
     
     """
+    plt.clf()
+    plt.figure(1)
     plt.hist(np.log(transmissivity_calculated), bins=50)
     plt.title('Transmissivity Distribution')
     plt.xlabel('ln(T)')
@@ -79,7 +81,6 @@ def plot_spacial_transmissivity(target_well, radius, confirmed_wells, transmissi
     and UTM Northing (y) on its axis. The plotted points will be color coded
     depending on the decile that their respective transmissivity fall into.
     """
-    plt.clf()
     distribute_t = []
     x = [i[0][0] for i in confirmed_wells]
     y = [i[0][1] for i in confirmed_wells]
@@ -108,6 +109,7 @@ def plot_spacial_transmissivity(target_well, radius, confirmed_wells, transmissi
         else:
             value = 10
         distribute_t.append(value)
+    plt.figure(2)
     sns.cubehelix_palette(dark=.3, light=.8, as_cmap=True)
     sns.scatterplot(x, y, hue = distribute_t, palette = "Set2") #Set2 allows for the gradient
     plt.title(f"Transmissivity for Wells within {radius} meters of Well ID {target_well}")
