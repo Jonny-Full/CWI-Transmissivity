@@ -23,7 +23,8 @@ Version: 6/26/2020
 #COMPLETE
 from Verify import Verify
 from Transmissivity import transmissivity_calculations, conductivity_calculations
-from data_retrieve import find_wells, data_organization, pump_log, aquifer_thickness
+from data_retrieve import find_wells, data_organization, pump_log,\
+aquifer_thickness, storativity_calculations
 from plots import plot_histogram_transmissivity, plot_spacial_transmissivity
 
 target_well, rad = Verify()
@@ -31,7 +32,8 @@ radius = int(rad) #meters
 candidate_wells = find_wells(target_well, radius)
 pump_log_results = pump_log(candidate_wells)
 thickness_data = aquifer_thickness(candidate_wells)
-confirmed_wells = data_organization(candidate_wells, pump_log_results, thickness_data)
+thickness_storativity_data = storativity_calculations(candidate_wells, thickness_data)
+confirmed_wells = data_organization(candidate_wells, pump_log_results, thickness_storativity_data)
 transmissivity_calculated = transmissivity_calculations(confirmed_wells)
 HYDCONDUCT = conductivity_calculations(confirmed_wells, transmissivity_calculated)
 plot_histogram_transmissivity(transmissivity_calculated)

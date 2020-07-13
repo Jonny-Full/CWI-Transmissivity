@@ -11,11 +11,23 @@ target_well and draws water from the same aquifer as the target_well.
 pump_log: Uses the wells retrieved from find_wells to select specific capacity
 data from the CWI Pump Log table.
 
+aquifer_thickness: Uses data from find_wells to select aquifer thickness data
+from the CWI_Hydro table
+
+storativity_calculations: Uses aquifer thickness and code to determine material
+properties and determine the storage coefficent for every well observed.
+
 data_organization: Combines the data retrieved from find_wells and pump_log.
 This creates one large table where each entry is related by Relate ID.
 
+Citations
+---------
+Batu
+Aquifer Hydraulics: A Comprehensive Guide to Hydrogeologic Data Analysis 
+John Wiley & Sons, 1998, PG. 61
+
 Author: Jonny Full
-Version: 6/26/2020
+Version: 7/13/2020
 """
 import numpy as np
 from scipy import spatial
@@ -230,7 +242,82 @@ def aquifer_thickness(candidate_wells):
             thickness_aquired.append(info)
     return thickness_aquired
 
-def data_organization(candidate_wells, pump_log_results, thickness_data):
+def storativity_calculations(candidate_wells, thickness_data):
+    """This function uses the aquifer thickness data to calculate the storage
+    coefficient for each well.
+    
+    This function uses the data retrieved from aquifer_thickness to determine
+    the storage coeffient of each individual well. These calculations are based
+    on the following equation:
+        
+    S = Ss * b
+    
+    where S [-] is the storage coefficent, Ss [ft^-1] is the specific storage, 
+    and b [ft] is the aquifer thickness. Ss values are a material based 
+    property and have been approximated (Batu pg.61). This function uses a range
+    of values to determine a range of storage values for each observed well.
+    
+    Parameters
+    ----------
+    candidate_wells: list
+        candidate_wells is a list that contains the UTM easting and northing (int),
+        Aquifer code (str), screen length (float), casing radius (float), 
+        and Relate ID (str). All entries in this list are located within the 
+        RADIUS of the targetwell and draw water from the same aquifer as 
+        the target well. This list is sorted by ascending Well ID number.
+    
+    thickness_aquired: list
+        A list of Well ID (long) and aquifer thickness values(float).
+        
+    Returns
+    -------
+    thickness_storativity_data: list
+        thickness_storativity_data is a list that contains the aquifer thickness
+        (float), miniumum storage coefficent (float), maximum storage
+        coefficent (float), and Well ID (int). This list is sorted by acsending
+        Well ID.
+    
+    """
+    #Will approximate for more aquifer codes over time
+    thickness_storativity_data = []
+    #uses maximum specific storage values from literature
+    if candidate_wells[0][2] == "CJDN" or "CTCG" or "OSTP" or "QUUU" or "CTCW":
+        Ss_max = 6.2*10**-5
+    elif candidate_wells[0][2] == "QBAA" or "QWTA" or "CWOC":
+        Ss_max = 3.1*10**-5
+    elif candidate_wells[0][2] == "OPDC":
+        Ss_max = 2.1*10**-5
+    elif candidate_wells[0][2] == "CSLT":
+        Ss_max = 3.9*10**-4
+    elif candidate_wells[0][2] == "PEVT":
+        Ss_max = 7.8*10**-4
+    else:
+        Ss_max = 1 #come back to approximation
+    #uses minimum specific storage values from literature
+    if candidate_wells[0][2] == "CJDN" or "CTCG" or "OSTP" or "QUUU" or "CTCW":
+        Ss_min = 3.9*10**-5
+    elif candidate_wells[0][2] == "QBAA" or "QWTA" or "CWOC":
+        Ss_min = 1.5*10**-5
+    elif candidate_wells[0][2] == "OPDC":
+        Ss_min = 1*10**-6
+    elif candidate_wells[0][2] == "CSLT":
+        Ss_min = 2.8*10**-4
+    elif candidate_wells[0][2] == "PEVT":
+        Ss_min = 3.9*10**-4
+    else:
+        Ss_min = 1 #come back to approximation
+    for row in thickness_data:
+        well_id = row[1]
+        b = row[0]
+        S_max = Ss_max * b
+        S_min = Ss_min * b
+        data = [b, S_min, S_max, well_id]
+        thickness_storativity_data.append(data)
+        thickness_storativity_data.sort(key = lambda x: x[3]) #sorts list by Well ID number
+    return thickness_storativity_data
+
+
+def data_organization(candidate_wells, pump_log_results, thickness_storativity_data):
     """This function organizes the candidate_wells and the pump_log_results
     lists into one large data set.
     
@@ -255,6 +342,12 @@ def data_organization(candidate_wells, pump_log_results, thickness_data):
         in this list must also exist in candidate_wells and all of their
         respective field must be greater than zero and not null. This list is
         sorted by ascending Relate ID number.
+    
+    thickness_storativity_data: list
+        thickness_storativity_data is a list that contains the aquifer thickness
+        (float), miniumum storage coefficent (float), maximum storage
+        coefficent (float), and Well ID (int). This list is sorted by acsending
+        Well ID.
         
     Results
     -------
@@ -271,8 +364,8 @@ def data_organization(candidate_wells, pump_log_results, thickness_data):
     confirmed_wells = []
     for item in pump_log_results:
         for row in candidate_wells:
-            for data in thickness_data:
-                if row[5] == item[3] == data[1]:
+            for data in thickness_storativity_data:
+                if row[5] == item[3] == data[3]:
                     value = [row, item, data]
                     confirmed_wells.append(value)
     return confirmed_wells

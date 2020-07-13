@@ -31,7 +31,7 @@ Assumptions
     Constant Pump Rate
     Homogonous Nonleaky Aquifer
     
-Citration
+Citations
 ---------
     Bradbury, K. R. & Rothschild, E. R.
     A COMPUTERIZED TECHNIQUE FOR ESTIMATING THE HYDRAULIC CONDUCTIVITY OF 
@@ -67,7 +67,7 @@ def transmissivity_calculations(confirmed_wells):
     transmissivity_calculated = [] #ft^2/day  
     Co = 0
     T = 1
-    S = 0.001 #storativity = S temporary constant
+    S = [i[2][1] for i in confirmed_wells] #storativity = S temporary constant
     Q = [i[1][0] for i in confirmed_wells]
     t = [i[1][1] for i in confirmed_wells]
     s = [i[1][2] for i in confirmed_wells]
@@ -98,7 +98,7 @@ def transmissivity_calculations(confirmed_wells):
             LastValue = T
             if Q[i] is not None and t[i] is not None and L[i] is not None and rw[i] is not None and s[i] is not None:
                 if Q[i] > 0 and t[i] > 0 and L[i] > 0 and rw[i] > 0 and s[i] > 0:
-                    T = (Q[i]/(4*math.pi*(s[i])))*(math.log((2.25*T* t[i])/((rw[i]**2) * S)) + (2*sp))
+                    T = (Q[i]/(4*math.pi*(s[i])))*(math.log((2.25*T* t[i])/((rw[i]**2) * S[i])) + (2*sp))
         transmissivity_calculated.append(T)
     return transmissivity_calculated
 
