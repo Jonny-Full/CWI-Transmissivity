@@ -66,8 +66,8 @@ def transmissivity_calculations(confirmed_wells):
     """
     transmissivity_calculated = [] #ft^2/day  
     Co = 0
-    T = 1
-    S = [i[2][1] for i in confirmed_wells] #storativity = S temporary constant
+    S_min = [i[2][1] for i in confirmed_wells] #storativity = S temporary constant
+    S_max = [i[2][2] for i in confirmed_wells]
     Q = [i[1][0] for i in confirmed_wells]
     t = [i[1][1] for i in confirmed_wells]
     s = [i[1][2] for i in confirmed_wells]
@@ -77,7 +77,8 @@ def transmissivity_calculations(confirmed_wells):
     
     for i in range(len(Q)):
         #sw = [Co * (Q[i]**2)]
-        T = 1.0
+        T_max = 1.0
+        T_min = 1.0
         LastValue = 0
         if L[i] > 0 and rw[i] > 0:
              Lb = L[i]/b[i]
@@ -94,13 +95,16 @@ def transmissivity_calculations(confirmed_wells):
              sp = ((1-Lb)/Lb)*(math.log(b[i]/rw[i])-G)
         else:
             sp = 0
-        while (T - LastValue) >= 0.001:
-            LastValue = T
-            if Q[i] is not None and t[i] is not None and L[i] is not None and rw[i] is not None and s[i] is not None:
-                if Q[i] > 0 and t[i] > 0 and L[i] > 0 and rw[i] > 0 and s[i] > 0:
-                    T = (Q[i]/(4*math.pi*(s[i])))*(math.log((2.25*T* t[i])/((rw[i]**2) * S[i])) + (2*sp))
-        transmissivity_calculated.append(T)
-    return transmissivity_calculated
+        while (T_min - LastValue) >= 0.001:
+            LastValue = T_min
+            T_min = (Q[i]/(4*math.pi*(s[i])))*(math.log((2.25*T_min* t[i])/((rw[i]**2) * S_max[i])) + (2*sp))
+        LastValue = 0
+        while (T_max - LastValue) >= 0.001:
+            LastValue = T_max
+            T_max = (Q[i]/(4*math.pi*(s[i])))*(math.log((2.25*T_max* t[i])/((rw[i]**2) * S_min[i])) + (2*sp))
+        T_range = [T_min, T_max]
+        transmissivity_calculated.append(T_range)
+    return transmissivity_calculated #break into two lists?
 
 
 def conductivity_calculations(confirmed_wells, transmissivity_calculated):
