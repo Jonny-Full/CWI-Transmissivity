@@ -44,7 +44,7 @@ Version: 6/24/2020
 """
 import math
 
-def calc(confirmed_wells):
+def transmissivity_calculations(confirmed_wells):
     """Computes the Transmissivity for every well in confirmed_wells
     
     Parameters
@@ -100,12 +100,10 @@ def calc(confirmed_wells):
                 if Q[i] > 0 and t[i] > 0 and L[i] > 0 and rw[i] > 0 and s[i] > 0:
                     T = (Q[i]/(4*math.pi*(s[i])))*(math.log((2.25*T* t[i])/((rw[i]**2) * S)) + (2*sp))
         transmissivity_calculated.append(T)
-        
-        #TSIV = [t for t in TSIV if t > 0] #removes T = 0 values redesign later
     return transmissivity_calculated
 
 
-def Conduct(confirmed_wells, transmissivity_calculated):
+def conductivity_calculations(confirmed_wells, transmissivity_calculated):
     """Converts the Transmissivity values to Hydralic Conductivity
     
     Parameters

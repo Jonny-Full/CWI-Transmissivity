@@ -13,6 +13,7 @@ Version: 6/26/2020
 """
 import json
 import arcpy
+import numpy as np
 from data_location import loc, allwells
 #from findWells import selectedWells
 def store_sheet(loc):
@@ -76,3 +77,42 @@ def opie(STORE):
         for row in cursor:
             USEFUL.append(row)
     return USEFUL
+
+def storativity_calculations(candidate_wells, thickness_data):
+    data_holder = []
+    #uses maximum specific storage values from literature
+    if candidate_wells[0][2] == "CJDN" or "CTCG" or "OSTP" or "QUUU" or "CTCW":
+        Ss_max = 6.2*10**-5
+    elif candidate_wells[0][2] == "QBAA" or "QWTA" or "CWOC":
+        Ss_max = 3.1*10**-5
+    elif candidate_wells[0][2] == "OPDC":
+        Ss_max = 2.1*10**-5
+    elif candidate_wells[0][2] == "CSLT":
+        Ss_max = 3.9*10**-4
+    elif candidate_wells[0][2] == "PEVT":
+        Ss_max = 7.8*10**-4
+    else:
+        Ss_max = 1 #come back to approximation
+    #for minimum specific storage values from literature
+    if candidate_wells[0][2] == "CJDN" or "CTCG" or "OSTP" or "QUUU" or "CTCW":
+        Ss_min = 3.9*10**-5
+    elif candidate_wells[0][2] == "QBAA" or "QWTA" or "CWOC":
+        Ss_min = 1.5*10**-5
+    elif candidate_wells[0][2] == "OPDC":
+        Ss_min = 1*10**-6
+    elif candidate_wells[0][2] == "CSLT":
+        Ss_min = 2.8*10**-4
+    elif candidate_wells[0][2] == "PEVT":
+        Ss_min = 3.9*10**-4
+    else:
+        Ss_min = 1 #come back to approximation
+    for row in thickness_data:
+        well_id = row[1]
+        b = row[0]
+        S_max = Ss_max * b
+        S_min = Ss_min * b
+        data = [b, S_min, S_max, well_id]
+        data_holder.append(data)
+        thickness_storativity_data = np.array(data_holder)
+    thickness_storativity_data = thickness_storativity_data.tolist()
+    return thickness_storativity_data
