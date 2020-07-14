@@ -129,8 +129,12 @@ def conductivity_calculations(confirmed_wells, transmissivity_calculated):
         K = T/b
     """
     b = [i[2][0] for i in confirmed_wells]
+    T_min = [i[0] for i in transmissivity_calculated]
+    T_max = [i[1] for i in transmissivity_calculated]
     hydro_cond = []
     for i in range(len(transmissivity_calculated)):
-        K=transmissivity_calculated[i]/b[i]
-        hydro_cond.append(K)
+        K_min = T_min[i] / b[i]
+        K_max = T_max[i] / b[i]
+        K_values = [K_min, K_max]
+        hydro_cond.append(K_values)
     return hydro_cond
