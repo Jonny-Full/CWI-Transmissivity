@@ -15,10 +15,14 @@ plot_spacial_transmissicity:
 Author: Jonny Full
 Version: 6/26/2020
 """
+import arcpy
 import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
-
+from data_location import allwells, CWIPL, THICKNESS
+from matplotlib.ticker import (MultipleLocator, FormatStrFormatter,
+                               AutoMinorLocator)
+from matplotlib.backends.backend_pdf import PdfPages
 
 
 def plot_histogram_transmissivity(transmissivity_calculated):
@@ -38,10 +42,11 @@ def plot_histogram_transmissivity(transmissivity_calculated):
     """
     plt.clf()
     plt.figure(1)
-    plt.hist(np.log(transmissivity_calculated), bins=50)
+    plt.hist(np.log(transmissivity_calculated), bins=50, label = ['T_Min', 'T_Max'])
     plt.title('Transmissivity Distribution')
     plt.xlabel('ln(T)')
     plt.ylabel('Number of entries')
+    plt.legend(loc = 'upper right')
 
     
 def plot_spacial_transmissivity(target_well, radius, confirmed_wells, transmissivity_calculated):
@@ -81,6 +86,7 @@ def plot_spacial_transmissivity(target_well, radius, confirmed_wells, transmissi
     and UTM Northing (y) on its axis. The plotted points will be color coded
     depending on the decile that their respective transmissivity fall into.
     """
+    plt.figure(2)
     distribute_t = []
     x = [i[0][0] for i in confirmed_wells]
     y = [i[0][1] for i in confirmed_wells]
@@ -109,7 +115,6 @@ def plot_spacial_transmissivity(target_well, radius, confirmed_wells, transmissi
         else:
             value = 10
         distribute_t.append(value)
-    plt.figure(2)
     sns.cubehelix_palette(dark=.3, light=.8, as_cmap=True)
     sns.scatterplot(x, y, hue = distribute_t, palette = "Set2") #Set2 allows for the gradient
     plt.title(f"Transmissivity for Wells within {radius} meters of Well ID {target_well}")
@@ -117,3 +122,70 @@ def plot_spacial_transmissivity(target_well, radius, confirmed_wells, transmissi
     plt.ylabel("UTM Northing")
     plt.axis('equal')
     plt.grid(True)
+    
+    
+def Pump_Durations_Plots():
+    """ Temporary file
+    
+    This file shows how common roundoff errors occur in the CWI data base
+    """
+    plt.clf()
+    VALUES = []
+    where_clause = (
+        "(FLOW_RATE is not NULL) AND "
+        "(FLOW_RATE > 0) AND "
+        "(FLOW_RATE < 100) AND "
+        "(DURATION is not NULL) AND "
+        "(DURATION > 0) AND"
+        "(DURATION < 12)"
+         )
+    with arcpy.da.SearchCursor(CWIPL, ['FLOW_RATE', 'DURATION'] , where_clause) as cursor:
+        for row in cursor:
+           stuff = [row[0], row[1]]
+           VALUES.append(stuff)
+           
+        DUR_DATA = [i[1] for i in VALUES]
+        PUMP_DATA = [i[0] for i in VALUES]
+        plt.figure(1)
+        plt.hist(DUR_DATA, bins = 100)
+        plt.title('# of Durations')
+        plt.xlabel('DURATION')
+        plt.ylabel('Number of Entries')
+        plt.xticks(np.arange(0, 13, step = 1))
+        plt.yticks(np.arange(0, 130000, step = 10000))
+       
+        
+        
+        plt.figure(2)
+        plt.hist(PUMP_DATA, bins = 100)
+        plt.title('# of Pump Rates')
+        plt.xlabel('Pump Rate')
+        plt.ylabel('Number of Entries')
+        plt.xticks(np.arange(0, 110, step = 10))
+        plt.yticks(np.arange(0, 60000, step = 5000))
+        plt.minorticks_on()
+       
+        
+        with PdfPages('DATA.pdf') as pdf:        
+            fig, ax = plt.subplots(1,1)
+            ax.set_axisbelow(True)
+            plt.figure(3)
+            plt.scatter(PUMP_DATA, DUR_DATA)
+            plt.minorticks_on()
+            plt.xlim([0,100])
+            plt.ylim([0,12])
+            plt.xlabel('Pumping Rates [GPM]', fontsize = 12)
+            plt.ylabel('Duration of Test [hours]', fontsize = 12)
+            ax.xaxis.set_major_locator(MultipleLocator(20))
+            ax.xaxis.set_major_formatter(FormatStrFormatter('%d'))
+            ax.xaxis.set_minor_locator(MultipleLocator(10))
+            ax.yaxis.set_major_locator(MultipleLocator(1))
+            ax.yaxis.set_major_formatter(FormatStrFormatter('%d'))
+            ax.yaxis.set_minor_locator(MultipleLocator(0.5))
+            plt.grid(which='minor', linestyle=':', linewidth='0.5', color='gray', zorder = 0)
+            plt.grid(which='major', linestyle='-', linewidth='0.5', color='black', zorder = 0)
+            pdf.savefig()
+        
+         
+         
+         
