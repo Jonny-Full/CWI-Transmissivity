@@ -74,8 +74,10 @@ def transmissivity_calculations(confirmed_wells):
     L = [i[0][3] for i in confirmed_wells]
     rw = [i[0][4] for i in confirmed_wells]
     b = [i[2][0] for i in confirmed_wells]
+    well_identify = [i[0][5] for i in confirmed_wells]
     
     for i in range(len(Q)):
+        well_id = well_identify[i]
         #sw = [Co * (Q[i]**2)]
         T_max = 1.0
         T_min = 1.0
@@ -131,8 +133,10 @@ def conductivity_calculations(confirmed_wells, transmissivity_calculated):
     b = [i[2][0] for i in confirmed_wells]
     T_min = [i[0] for i in transmissivity_calculated]
     T_max = [i[1] for i in transmissivity_calculated]
+#    well_identify = [i[2] for i in transmissivity_calculated]
     hydro_cond = []
     for i in range(len(transmissivity_calculated)):
+#        well_id = well_identify[i]
         K_min = T_min[i] / b[i]
         K_max = T_max[i] / b[i]
         K_values = [K_min, K_max]

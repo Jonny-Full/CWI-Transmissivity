@@ -25,7 +25,8 @@ from Verify import Verify
 from Transmissivity import transmissivity_calculations, conductivity_calculations
 from data_retrieve import find_wells, data_organization, pump_log,\
 aquifer_thickness, storativity_calculations
-from plots import plot_histogram_transmissivity, plot_spacial_transmissivity, plot_spacial_conductivity
+from plots import plot_histogram_transmissivity, plot_spacial_transmissivity
+from prettytable import PrettyTable
 target_coords = []
 target_well, rad = Verify()
 radius = int(rad) #meters
@@ -44,7 +45,20 @@ thickness_data = aquifer_thickness(candidate_wells)
 thickness_storativity_data = storativity_calculations(candidate_wells, thickness_data)
 confirmed_wells = data_organization(candidate_wells, pump_log_results, thickness_storativity_data)
 transmissivity_calculated = transmissivity_calculations(confirmed_wells)
-conductivity_calculated = conductivity_calculations(confirmed_wells, transmissivity_calculated)
 plot_histogram_transmissivity(transmissivity_calculated)
+conductivity_calculated = conductivity_calculations(confirmed_wells, transmissivity_calculated)
 plot_spacial_transmissivity(target_well, radius, confirmed_wells, transmissivity_calculated, target_coords)
 plot_spacial_conductivity(target_well, radius, confirmed_wells, conductivity_calculated, target_coords)
+
+t_min = [i[0] for i in transmissivity_calculated]
+t_max = [i[1] for i in transmissivity_calculated]
+k_min = [i[0] for i in conductivity_calculated]
+k_max = [i[1] for i in conductivity_calculated]
+well_id = [i[0][5] for i in confirmed_wells]
+combine_data = {'Minimum Transmissivity' : t_min, 'Maximum Transmissivity' : t_max,\
+                'Minimum Hydralic Conductivity' : k_min, 'Maximum Hydralic Conductivity' : k_max,\
+                'Well ID': well_id}
+with open('Returned Data.csv', 'w') as f:
+    for key in combine_data.keys():
+        f.write("%s,%s\n"%(key,combine_data[key]))
+

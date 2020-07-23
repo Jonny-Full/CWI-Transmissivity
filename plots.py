@@ -91,6 +91,7 @@ def plot_spacial_transmissivity(target_well, radius, confirmed_wells, transmissi
     and UTM Northing (y) on its axis. The plotted points will be color coded
     depending on the decile that their respective transmissivity fall into.
     """
+    
     plt.figure(2)
     distribute_t = []
     x = [i[0][0] for i in confirmed_wells]
@@ -122,9 +123,9 @@ def plot_spacial_transmissivity(target_well, radius, confirmed_wells, transmissi
         distribute_t.append(value)
     sns.cubehelix_palette(n_colors = 10, as_cmap=True)
     sns.scatterplot(x, y, hue = distribute_t, palette = 'Set2', s = 40) #Set2 allows for the gradient
-    sns.scatterplot([target_coords[0][0]], [target_coords[0][1]], color='black', marker = 's', s = 50)
+    sns.scatterplot([target_coords[0][0]], [target_coords[0][1]], color='black', marker = 's', s = 50, label = 'Target')
     plt.legend(labels = ['0-10', '10-20', '20-30', '30-40', '40-50',\
-                         '50-60', '60-70', '70-80', '80-90', '90-100'],\
+                        '50-60', '60-70', '70-80', '80-90', '90-100'],\
                 title = "Deciles for Transmissivity (%)")
     plt.title(f"Transmissivity for Wells within {radius} meters of Well ID {target_well}")
     plt.xlabel("UTM Easting")
@@ -179,9 +180,9 @@ def plot_spacial_conductivity(target_well, radius, confirmed_wells, conductivity
     distribute_K = []
     x = [i[0][0] for i in confirmed_wells]
     y = [i[0][1] for i in confirmed_wells]
-    T = [i[0] for i in conductivity_calculated]
+    K = [i[0] for i in conductivity_calculated]
     bounds = np.percentile(conductivity_calculated, np.arange(0, 100, 10)) #calculates deciles
-    for row in T:
+    for row in K:
         value = 0
         if row < bounds[1]:
             value = 1
@@ -204,8 +205,8 @@ def plot_spacial_conductivity(target_well, radius, confirmed_wells, conductivity
         else:
             value = 10
         distribute_K.append(value)
-    sns.cubehelix_palette(n_colors = 10, as_cmap=True)
-    sns.scatterplot(x, y, hue = distribute_t, palette = 'Set2', s = 40) #Set2 allows for the gradient
+    sns.cubehelix_palette(8, as_cmap=True)
+    sns.scatterplot(x, y, hue = distribute_K, palette = 'Set1', s = 40) #Set2 allows for the gradient
     sns.scatterplot([target_coords[0][0]], [target_coords[0][1]], color='black', marker = 's', s = 50)
     plt.legend(labels = ['0-10', '10-20', '20-30', '30-40', '40-50',\
                          '50-60', '60-70', '70-80', '80-90', '90-100'],\
