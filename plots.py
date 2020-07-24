@@ -46,7 +46,7 @@ def plot_histogram_transmissivity(transmissivity_calculated):
     plt.title('Transmissivity Distribution')
     plt.xlabel('ln(T)')
     plt.ylabel('Number of entries')
-    plt.legend(loc = 'upper right')
+    plt.legend(['T_Min', 'T_Max'], loc = 'upper right')
 
     
 def plot_spacial_transmissivity(target_well, radius, confirmed_wells, transmissivity_calculated, target_coords):
@@ -210,8 +210,8 @@ def plot_spacial_conductivity(target_well, radius, confirmed_wells, conductivity
     sns.scatterplot([target_coords[0][0]], [target_coords[0][1]], color='black', marker = 's', s = 50)
     plt.legend(labels = ['0-10', '10-20', '20-30', '30-40', '40-50',\
                          '50-60', '60-70', '70-80', '80-90', '90-100'],\
-                title = "Deciles for Hydralic Conductivity (%)")
-    plt.title(f"Hydralic Conductivities for Wells within {radius} meters of Well ID {target_well}")
+                title = "Deciles for Hydraulic Conductivity (%)")
+    plt.title(f"Hydraulic Conductivities for Wells within {radius} meters of Well ID {target_well}")
     plt.xlabel("UTM Easting")
     plt.ylabel("UTM Northing")
     plt.axis('equal')
@@ -228,40 +228,59 @@ def Pump_Durations_Plots():
     where_clause = (
         "(FLOW_RATE is not NULL) AND "
         "(FLOW_RATE > 0) AND "
-        "(FLOW_RATE < 100) AND "
+        "(FLOW_RATE <= 100) AND "
         "(DURATION is not NULL) AND "
         "(DURATION > 0) AND"
-        "(DURATION < 12)"
+        "(DURATION <= 12)"
          )
     with arcpy.da.SearchCursor(CWIPL, ['FLOW_RATE', 'DURATION'] , where_clause) as cursor:
         for row in cursor:
-           stuff = [row[0], row[1]]
-           VALUES.append(stuff)
-           
+            stuff = [row[0], row[1]]
+            VALUES.append(stuff)
         DUR_DATA = [i[1] for i in VALUES]
         PUMP_DATA = [i[0] for i in VALUES]
+        plt.figure(1)
+        plt.hist(DUR_DATA, bins = 48, label = 'Duration')
+        plt.xlim([0, 12])
+        plt.ylim([0, 125000])
+        plt.minorticks_on()
+        plt.xticks(fontsize = 24)
+        plt.yticks(fontsize = 24)
+        plt.xlabel('Duration [hours]', fontsize = 30)
+        plt.ylabel('Number of entries', fontsize = 30)
+        plt.grid(True)
+       
+        plt.figure(2)
+        plt.hist(PUMP_DATA, bins = 100, label = 'Pump Rata Data')
+        plt.minorticks_on()
+        plt.xlim([0, 100])
+        plt.ylim([0, 60000])
+        plt.xticks(fontsize = 24)
+        plt.yticks(fontsize = 24)
+        plt.xlabel('Pump Rate [GPM]', fontsize = 30)
+        plt.ylabel('Number of entries', fontsize = 30)
+        plt.grid(True)
+        
+        fig, ax = plt.subplots(1,1)
+        plt.figure(3)
+        plt.scatter(PUMP_DATA, DUR_DATA)
+        plt.xticks(fontsize = 14)
+        plt.yticks(fontsize = 14)
+        plt.minorticks_on()
+        plt.xlim([0,100])
+        plt.ylim([0,12])
+        plt.xlabel('Pumping Rates [GPM]', fontsize = 16)
+        plt.ylabel('Duration of Test [hours]', fontsize = 16)
+        ax.xaxis.set_major_locator(MultipleLocator(20))
+        ax.xaxis.set_major_formatter(FormatStrFormatter('%d'))
+        ax.xaxis.set_minor_locator(MultipleLocator(10))
+        ax.yaxis.set_major_locator(MultipleLocator(1))
+        ax.axis.set_major_formatter(FormatStrFormatter('%d'))
+        ax.yaxis.set_minor_locator(MultipleLocator(0.5))
+        plt.grid(which='minor', linestyle=':', linewidth='0.5', color='gray', zorder = 0)
+        plt.grid(which='major', linestyle='-', linewidth='0.5', color='black', zorder = 0)
+        ax.set_axisbelow(True)
 
-        with PdfPages('DATA.pdf') as pdf:        
-            fig, ax = plt.subplots(1,1)
-            plt.figure(2)
-            plt.scatter(PUMP_DATA, DUR_DATA)
-            plt.xticks(fontsize = 14)
-            plt.yticks(fontsize = 14)
-            plt.minorticks_on()
-            plt.xlim([0,100])
-            plt.ylim([0,12])
-            plt.xlabel('Pumping Rates [GPM]', fontsize = 16)
-            plt.ylabel('Duration of Test [hours]', fontsize = 16)
-            ax.xaxis.set_major_locator(MultipleLocator(20))
-            ax.xaxis.set_major_formatter(FormatStrFormatter('%d'))
-            ax.xaxis.set_minor_locator(MultipleLocator(10))
-            ax.yaxis.set_major_locator(MultipleLocator(1))
-            ax.yaxis.set_major_formatter(FormatStrFormatter('%d'))
-            ax.yaxis.set_minor_locator(MultipleLocator(0.5))
-            plt.grid(which='minor', linestyle=':', linewidth='0.5', color='gray', zorder = 0)
-            plt.grid(which='major', linestyle='-', linewidth='0.5', color='black', zorder = 0)
-            ax.set_axisbelow(True)
-            pdf.savefig()
         
          
          

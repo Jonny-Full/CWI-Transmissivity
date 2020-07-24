@@ -92,7 +92,7 @@ def storativity_calculations(candidate_wells, thickness_data):
     elif candidate_wells[0][2] == "PEVT":
         Ss_max = 7.8*10**-4
     else:
-        Ss_max = 1 #come back to approximation
+        Ss_max = 3.1*10**-5 #come back to approximation
     #for minimum specific storage values from literature
     if candidate_wells[0][2] == "CJDN" or "CTCG" or "OSTP" or "QUUU" or "CTCW":
         Ss_min = 3.9*10**-5
@@ -105,7 +105,7 @@ def storativity_calculations(candidate_wells, thickness_data):
     elif candidate_wells[0][2] == "PEVT":
         Ss_min = 3.9*10**-4
     else:
-        Ss_min = 1 #come back to approximation
+        Ss_min = 1.5*10**-5 #come back to approximation
     for row in thickness_data:
         well_id = row[1]
         b = row[0]

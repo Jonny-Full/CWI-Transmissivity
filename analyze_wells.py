@@ -25,7 +25,7 @@ from Verify import Verify
 from Transmissivity import transmissivity_calculations, conductivity_calculations
 from data_retrieve import find_wells, data_organization, pump_log,\
 aquifer_thickness, storativity_calculations
-from plots import plot_histogram_transmissivity, plot_spacial_transmissivity
+from plots import plot_histogram_transmissivity, plot_spacial_transmissivity, plot_spacial_conductivity
 from prettytable import PrettyTable
 target_coords = []
 target_well, rad = Verify()
@@ -56,7 +56,7 @@ k_min = [i[0] for i in conductivity_calculated]
 k_max = [i[1] for i in conductivity_calculated]
 well_id = [i[0][5] for i in confirmed_wells]
 combine_data = {'Minimum Transmissivity' : t_min, 'Maximum Transmissivity' : t_max,\
-                'Minimum Hydralic Conductivity' : k_min, 'Maximum Hydralic Conductivity' : k_max,\
+                'Minimum Hydraulic Conductivity' : k_min, 'Maximum Hydralic Conductivity' : k_max,\
                 'Well ID': well_id}
 with open('Returned Data.csv', 'w') as f:
     for key in combine_data.keys():
