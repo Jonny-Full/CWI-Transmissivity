@@ -18,6 +18,7 @@ Version: 6/26/2020
 import arcpy
 import seaborn as sns
 import matplotlib.pyplot as plt
+from matplotlib.colors import LogNorm
 import numpy as np
 from data_location import allwells, CWIPL, THICKNESS
 from matplotlib.ticker import (MultipleLocator, FormatStrFormatter,
@@ -40,7 +41,7 @@ def plot_histogram_transmissivity(transmissivity_calculated):
     values. The histogram has 50 bars to represent a clear distribution.
     
     """
-    plt.clf()
+    plt.close('all')
     plt.figure(1)
     plt.hist(np.log(transmissivity_calculated), bins=50, label = ['T_Min', 'T_Max'])
     plt.title('Transmissivity Distribution')
@@ -91,34 +92,30 @@ def plot_spacial_transmissivity(target_well, radius, confirmed_wells, transmissi
     and UTM Northing (y) on its axis. The plotted points will be color coded
     depending on the decile that their respective transmissivity fall into.
     """
-    
     plt.figure(2)
     distribute_t = []
     x = [i[0][0] for i in confirmed_wells]
     y = [i[0][1] for i in confirmed_wells]
     T = [i[0] for i in transmissivity_calculated]
-    T_ln = []
-
-    for row in T:
-        data = np.log(row)
-        T_ln.append(data)
-
     bounds = np.percentile(transmissivity_calculated, np.arange(0, 110, 10)) #calculates deciles
     #May not be necessary
     for row in T:
         #Ask Barnes so I understand the logic entirely
         decile = next(indx for indx, trans in enumerate(bounds) if trans > row)
         distribute_t.append(decile)
-    plt.scatter(x, y, c = T_ln, s = 30, cmap='Blues', vmin = min(T_ln), vmax = max(T_ln))
+    plt.grid(True, zorder = 0)
+    plt.scatter(x, y, c = T, s = 30, cmap='Blues',\
+                norm = LogNorm(vmin= min(T), vmax=max(T)), zorder = 3)
     cbar = plt.colorbar()
-    cbar.set_label('Natural Logaritum of Transmissivity', rotation = 270)
-    sns.scatterplot([target_coords[0][0]], [target_coords[0][1]], color='red', marker = 's', edgecolor = 'k', s = 50, label = 'Target Well')
+    cbar.set_label('ln() of Transmissivity', rotation = 270)
+    sns.scatterplot([target_coords[0][0]], [target_coords[0][1]], color='red',\
+                    marker = 's', edgecolor = 'k', s = 50,\
+                    label = 'Target Well', zorder = 3)
     plt.title(f"Transmissivity for Wells within {radius} meters of Well ID {target_well}")
     plt.xlabel("UTM Easting")
     plt.ylabel("UTM Northing")
     plt.axis('equal')
-    plt.grid(True)
-    
+
 def plot_spacial_conductivity(target_well, radius, confirmed_wells, conductivity_calculated, target_coords):
     """Plots the confirmed_wells geographical location and shows the 
     Transmissivity for each well.
@@ -167,25 +164,23 @@ def plot_spacial_conductivity(target_well, radius, confirmed_wells, conductivity
     x = [i[0][0] for i in confirmed_wells]
     y = [i[0][1] for i in confirmed_wells]
     K = [i[0] for i in conductivity_calculated]
-    K_ln = []
-
-    for row in K:
-        data = np.log(row)
-        K_ln.append(data)
-        
     bounds = np.percentile(conductivity_calculated, np.arange(0, 110, 10)) #calculates deciles
     for row in K:
         decile = next(indx for indx, trans in enumerate(bounds) if trans > row)
         distribute_K.append(decile)
-    plt.scatter(x, y, c = K_ln, s = 30, cmap='Reds', vmin = min(K_ln), vmax = max(K_ln))
+    plt.grid(True, zorder = 0)
+    plt.scatter(x, y, c = K, s = 30, cmap='Reds',\
+                norm = LogNorm(vmin= min(K), vmax=max(K)), zorder = 3)
     cbar = plt.colorbar()
-    cbar.set_label('Natural Logaritum of Transmissivity', rotation = 270)
-    sns.scatterplot([target_coords[0][0]], [target_coords[0][1]], color='blue', marker = 's', edgecolor = 'k', s = 50, label = 'Target Well')
+    cbar.set_label('ln() of Hydralic Conductivity', rotation = 270)
+    sns.scatterplot([target_coords[0][0]], [target_coords[0][1]],\
+                    color='blue', marker = 's', edgecolor = 'k',\
+                    s = 50, label = 'Target Well', zorder = 3)
     plt.title(f"Transmissivity for Wells within {radius} meters of Well ID {target_well}")
     plt.xlabel("UTM Easting")
     plt.ylabel("UTM Northing")
     plt.axis('equal')
-    plt.grid(True)
+    
     
     
 def Pump_Durations_Plots():
