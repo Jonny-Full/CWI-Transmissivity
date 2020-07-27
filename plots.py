@@ -97,36 +97,22 @@ def plot_spacial_transmissivity(target_well, radius, confirmed_wells, transmissi
     x = [i[0][0] for i in confirmed_wells]
     y = [i[0][1] for i in confirmed_wells]
     T = [i[0] for i in transmissivity_calculated]
-    bounds = np.percentile(transmissivity_calculated, np.arange(0, 100, 10)) #calculates deciles
+    T_ln = []
+
     for row in T:
-        value = 0
-        if row < bounds[1]:
-            value = 1
-        elif row < bounds[2]:
-            value = 2
-        elif row < bounds[3]:
-            value = 3
-        elif row < bounds[4]:
-            value = 4
-        elif row < bounds[5]:
-            value = 5
-        elif row < bounds[6]:
-            value = 6
-        elif row < bounds[7]:
-            value = 7
-        elif row < bounds[8]:
-            value = 8
-        elif row < bounds[9]:
-            value = 9
-        else:
-            value = 10
-        distribute_t.append(value)
-    sns.cubehelix_palette(n_colors = 10, as_cmap=True)
-    sns.scatterplot(x, y, hue = distribute_t, palette = 'Set2', s = 40) #Set2 allows for the gradient
-    sns.scatterplot([target_coords[0][0]], [target_coords[0][1]], color='black', marker = 's', s = 50, label = 'Target')
-    plt.legend(labels = ['0-10', '10-20', '20-30', '30-40', '40-50',\
-                        '50-60', '60-70', '70-80', '80-90', '90-100'],\
-                title = "Deciles for Transmissivity (%)")
+        data = np.log(row)
+        T_ln.append(data)
+
+    bounds = np.percentile(transmissivity_calculated, np.arange(0, 110, 10)) #calculates deciles
+    #May not be necessary
+    for row in T:
+        #Ask Barnes so I understand the logic entirely
+        decile = next(indx for indx, trans in enumerate(bounds) if trans > row)
+        distribute_t.append(decile)
+    plt.scatter(x, y, c = T_ln, s = 30, cmap='Blues', vmin = min(T_ln), vmax = max(T_ln))
+    cbar = plt.colorbar()
+    cbar.set_label('Natural Logaritum of Transmissivity', rotation = 270)
+    sns.scatterplot([target_coords[0][0]], [target_coords[0][1]], color='red', marker = 's', edgecolor = 'k', s = 50, label = 'Target Well')
     plt.title(f"Transmissivity for Wells within {radius} meters of Well ID {target_well}")
     plt.xlabel("UTM Easting")
     plt.ylabel("UTM Northing")
@@ -181,37 +167,21 @@ def plot_spacial_conductivity(target_well, radius, confirmed_wells, conductivity
     x = [i[0][0] for i in confirmed_wells]
     y = [i[0][1] for i in confirmed_wells]
     K = [i[0] for i in conductivity_calculated]
-    bounds = np.percentile(conductivity_calculated, np.arange(0, 100, 10)) #calculates deciles
+    K_ln = []
+
     for row in K:
-        value = 0
-        if row < bounds[1]:
-            value = 1
-        elif row < bounds[2]:
-            value = 2
-        elif row < bounds[3]:
-            value = 3
-        elif row < bounds[4]:
-            value = 4
-        elif row < bounds[5]:
-            value = 5
-        elif row < bounds[6]:
-            value = 6
-        elif row < bounds[7]:
-            value = 7
-        elif row < bounds[8]:
-            value = 8
-        elif row < bounds[9]:
-            value = 9
-        else:
-            value = 10
-        distribute_K.append(value)
-    sns.cubehelix_palette(8, as_cmap=True)
-    sns.scatterplot(x, y, hue = distribute_K, palette = 'Set1', s = 40) #Set2 allows for the gradient
-    sns.scatterplot([target_coords[0][0]], [target_coords[0][1]], color='black', marker = 's', s = 50)
-    plt.legend(labels = ['0-10', '10-20', '20-30', '30-40', '40-50',\
-                         '50-60', '60-70', '70-80', '80-90', '90-100'],\
-                title = "Deciles for Hydraulic Conductivity (%)")
-    plt.title(f"Hydraulic Conductivities for Wells within {radius} meters of Well ID {target_well}")
+        data = np.log(row)
+        K_ln.append(data)
+        
+    bounds = np.percentile(conductivity_calculated, np.arange(0, 110, 10)) #calculates deciles
+    for row in K:
+        decile = next(indx for indx, trans in enumerate(bounds) if trans > row)
+        distribute_K.append(decile)
+    plt.scatter(x, y, c = K_ln, s = 30, cmap='Reds', vmin = min(K_ln), vmax = max(K_ln))
+    cbar = plt.colorbar()
+    cbar.set_label('Natural Logaritum of Transmissivity', rotation = 270)
+    sns.scatterplot([target_coords[0][0]], [target_coords[0][1]], color='blue', marker = 's', edgecolor = 'k', s = 50, label = 'Target Well')
+    plt.title(f"Transmissivity for Wells within {radius} meters of Well ID {target_well}")
     plt.xlabel("UTM Easting")
     plt.ylabel("UTM Northing")
     plt.axis('equal')
@@ -231,14 +201,20 @@ def Pump_Durations_Plots():
         "(FLOW_RATE <= 100) AND "
         "(DURATION is not NULL) AND "
         "(DURATION > 0) AND"
-        "(DURATION <= 12)"
+        "(DURATION <= 12) AND"
+        "(START_MEAS is not NULL) AND "
+        "(START_MEAS > 0) AND "
+        "(PUMP_MEAS is not NULL) AND "
+        "(PUMP_MEAS > 0)"
          )
-    with arcpy.da.SearchCursor(CWIPL, ['FLOW_RATE', 'DURATION'] , where_clause) as cursor:
+    with arcpy.da.SearchCursor(CWIPL, ['FLOW_RATE', 'DURATION', 'START_MEAS', 'PUMP_MEAS'], where_clause) as cursor:
         for row in cursor:
-            stuff = [row[0], row[1]]
+            down = row[3] - row[2]
+            stuff = [row[0], row[1], down]
             VALUES.append(stuff)
         DUR_DATA = [i[1] for i in VALUES]
         PUMP_DATA = [i[0] for i in VALUES]
+        Drawdown_data = [i[2] for i in VALUES]
         plt.figure(1)
         plt.hist(DUR_DATA, bins = 48, label = 'Duration')
         plt.xlim([0, 12])
@@ -261,8 +237,19 @@ def Pump_Durations_Plots():
         plt.ylabel('Number of entries', fontsize = 30)
         plt.grid(True)
         
-        fig, ax = plt.subplots(1,1)
         plt.figure(3)
+        plt.hist(Drawdown_data, bins = 500, label = 'Pump Rata Data')
+        plt.minorticks_on()
+        plt.xlim([0, 500])
+        plt.ylim([0, 100000])
+        plt.xticks(fontsize = 24)
+        plt.yticks(fontsize = 24)
+        plt.xlabel('Drawdown [ft]', fontsize = 30)
+        plt.ylabel('Number of entries', fontsize = 30)
+        plt.grid(True)
+        
+        fig, ax = plt.subplots(1,1)
+        plt.figure(4)
         plt.scatter(PUMP_DATA, DUR_DATA)
         plt.xticks(fontsize = 14)
         plt.yticks(fontsize = 14)
