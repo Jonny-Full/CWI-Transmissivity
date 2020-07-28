@@ -25,8 +25,8 @@ from Verify import Verify
 from Transmissivity import transmissivity_calculations, conductivity_calculations
 from data_retrieve import find_wells, data_organization, pump_log,\
 aquifer_thickness, storativity_calculations
-from plots import plot_histogram_transmissivity, plot_spacial_transmissivity, plot_spacial_conductivity
-from prettytable import PrettyTable
+from plots import plot_histogram_transmissivity, plot_spacial_transmissivity,\
+plot_spacial_conductivity, spacial_thickness_plots
 target_coords = []
 target_well, rad = Verify()
 radius = int(rad) #meters
@@ -49,6 +49,7 @@ plot_histogram_transmissivity(transmissivity_calculated)
 conductivity_calculated = conductivity_calculations(confirmed_wells, transmissivity_calculated)
 plot_spacial_transmissivity(target_well, radius, confirmed_wells, transmissivity_calculated, target_coords)
 plot_spacial_conductivity(target_well, radius, confirmed_wells, conductivity_calculated, target_coords)
+spacial_thickness_plots(target_well, radius, confirmed_wells, target_coords)
 
 t_min = [i[0] for i in transmissivity_calculated]
 t_max = [i[1] for i in transmissivity_calculated]

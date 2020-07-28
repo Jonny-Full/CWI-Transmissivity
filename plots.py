@@ -174,19 +174,34 @@ def plot_spacial_conductivity(target_well, radius, confirmed_wells, conductivity
     cbar = plt.colorbar()
     cbar.set_label('ln() of Hydralic Conductivity', rotation = 270)
     sns.scatterplot([target_coords[0][0]], [target_coords[0][1]],\
-                    color='blue', marker = 's', edgecolor = 'k',\
+                    color='blue', marker = 'D', edgecolor = 'k',\
                     s = 50, label = 'Target Well', zorder = 3)
-    plt.title(f"Transmissivity for Wells within {radius} meters of Well ID {target_well}")
+    plt.title(f"Hydralic Conductivity for Wells within {radius} meters of Well ID {target_well}")
     plt.xlabel("UTM Easting")
     plt.ylabel("UTM Northing")
     plt.axis('equal')
     
-    
+def spacial_thickness_plots(target_well, radius, confirmed_wells, target_coords):   
+    plt.figure(4)
+    x = [i[0][0] for i in confirmed_wells]
+    y = [i[0][1] for i in confirmed_wells]
+    thickness = [i[2][0] for i in confirmed_wells]
+    plt.grid(True, zorder = 0)
+    plt.scatter(x, y, c = thickness, s = 30, cmap='Greens',zorder = 3)
+    cbar = plt.colorbar()
+    cbar.set_label('Thickness (ft)', rotation = 270)
+    sns.scatterplot([target_coords[0][0]], [target_coords[0][1]],\
+                    color='purple', marker = 'X', edgecolor = 'k',\
+                    s = 100, label = 'Target Well', zorder = 3)
+    plt.title(f"Aquifer Thickness for wells within {radius} meters of Well ID {target_well}")
+    plt.xlabel("UTM Easting")
+    plt.ylabel("UTM Northing")
+    plt.axis('equal')
     
 def Pump_Durations_Plots():
     """ Temporary file
     
-    This file shows how common roundoff errors occur in the CWI data base
+    This file shows how common roundoff errors occur in the CWI database
     """
     plt.clf()
     VALUES = []
@@ -245,22 +260,22 @@ def Pump_Durations_Plots():
         
         fig, ax = plt.subplots(1,1)
         plt.figure(4)
-        plt.scatter(PUMP_DATA, DUR_DATA)
-        plt.xticks(fontsize = 14)
-        plt.yticks(fontsize = 14)
+        plt.grid(which='minor', linestyle=':', linewidth='0.5', color='gray', zorder = 0)
+        plt.grid(which='major', linestyle='-', linewidth='0.5', color='black', zorder = 0)
+        plt.scatter(PUMP_DATA, DUR_DATA, zorder = 3)
+        plt.xticks(fontsize = 24)
+        plt.yticks(fontsize = 24)
         plt.minorticks_on()
-        plt.xlim([0,100])
-        plt.ylim([0,12])
-        plt.xlabel('Pumping Rates [GPM]', fontsize = 16)
-        plt.ylabel('Duration of Test [hours]', fontsize = 16)
+        plt.xlim([0,101])
+        plt.ylim([0,12.25])
+        plt.xlabel('Pumping Rates [GPM]', fontsize = 30)
+        plt.ylabel('Duration of Test [hours]', fontsize = 30)
         ax.xaxis.set_major_locator(MultipleLocator(20))
         ax.xaxis.set_major_formatter(FormatStrFormatter('%d'))
         ax.xaxis.set_minor_locator(MultipleLocator(10))
         ax.yaxis.set_major_locator(MultipleLocator(1))
-        ax.axis.set_major_formatter(FormatStrFormatter('%d'))
+        #ax.axis.set_major_formatter(FormatStrFormatter('%d'))
         ax.yaxis.set_minor_locator(MultipleLocator(0.5))
-        plt.grid(which='minor', linestyle=':', linewidth='0.5', color='gray', zorder = 0)
-        plt.grid(which='major', linestyle='-', linewidth='0.5', color='black', zorder = 0)
         ax.set_axisbelow(True)
 
         

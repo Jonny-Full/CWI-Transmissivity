@@ -185,16 +185,19 @@ def pump_log(candidate_wells):
         for row in cursor:
             wellid = row[4]
             #Calculates pump rate
-            rate = row[0]*192.5 #converts from gal/min to ft^3/day
+            pump_rate_min = row[0] - 5
+            pump_rate_max = row[0] + 5
+            rate_min = pump_rate_min*192.5 #converts from gal/min to ft^3/day
+            rate_max = pump_rate_max*192.5
             #Calculates pump duration in days
             dur = row[1]/24
             #Calculates Drawdown
-            down = row[3] - row[2] 
+            down = row[3] - row[2] #How to account for uncertainty of drawdown?
             if down <= 0: #filters out entries where drawdown equals 0
                 continue
-            value = [rate, dur, down, wellid]   
+            value = [rate_min, rate_max, dur, down, wellid]   
             pump_log_wells.append(value)
-        pump_log_wells.sort(key = lambda x: x[3]) #sorts list by Relate ID number
+        pump_log_wells.sort(key = lambda x: x[4]) #sorts list by Relate ID number
     return pump_log_wells
 
 
@@ -365,7 +368,7 @@ def data_organization(candidate_wells, pump_log_results, thickness_storativity_d
     for item in pump_log_results:
         for row in candidate_wells:
             for data in thickness_storativity_data:
-                if row[5] == item[3] == data[3]:
+                if row[5] == item[4] == data[3]:
                     value = [row, item, data]
                     confirmed_wells.append(value)
     return confirmed_wells
