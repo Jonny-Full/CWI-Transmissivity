@@ -23,7 +23,7 @@ This creates one large table where each entry is related by Relate ID.
 Citations
 ---------
 Batu
-Aquifer Hydraulics: A Comprehensive Guide to Hydrogeologic Data Analysis 
+Aquifer Hydraulics: A Comprehensive Guide to Hydrogeologic Data Analysis
 John Wiley & Sons, 1998, PG. 61
 
 Author: Jonny Full
@@ -35,34 +35,34 @@ import arcpy
 from data_location import allwells, CWIPL, THICKNESS
 
 def find_wells(target_well, radius):
-    """ Use the target well input by the user to find all wells within a given 
+    """ Use the target well input by the user to find all wells within a given
     distance of the target well.
-    
+
     Retrieves data on all wells that exist within the distance 'RADIUS' and
     draw water from the same 'AQUIFER' as the target well. This function
     does not include any wells that do not have any of the following parameters.
-    
+
     Parameters
     ----------
     target_well: string
         The RELATEID of the well input by the user in Verify.
         Example : '0000123456'
-        
+
     RADIUS: int (meters)
-        RADIUS represents a boundry condition for the scope of analysis. 
+        RADIUS represents a boundry condition for the scope of analysis.
         Any wells used in future calculations fall within this distance of the
-        target well. 
+        target well.
         Example: 10000 (meters)
-        
+
     Returns
     -------
     candidate_wells: list
         candidate_wells is a list that contains the UTM easting and northing (int),
-        Aquifer code (str), screen length (float), casing radius (float), 
-        and Relate ID (str). All entries in this list are located within the 
-        RADIUS of the targetwell and draw water from the same aquifer as 
+        Aquifer code (str), screen length (float), casing radius (float),
+        and Relate ID (str). All entries in this list are located within the
+        RADIUS of the targetwell and draw water from the same aquifer as
         the target well. This list is sorted by ascending Relate ID number.
-    
+
     Notes
     -----
     The casing diameter value (inches) is converted to a radius and from inches
@@ -71,18 +71,18 @@ def find_wells(target_well, radius):
     """
     initial_well = []
     with arcpy.da.SearchCursor(allwells, ['UTME', 'UTMN', 'AQUIFER'],\
-                               f"WELLID = {target_well}") as cursor: 
+                               f"WELLID = {target_well}") as cursor:
         for row in cursor:
-            initial_well.append(row) 
+            initial_well.append(row)
     data = [initial_well[0][0], initial_well[0][1]] #records UTM coordinates
     well_data = []
     field_names = [
         "UTME",
-        "UTMN", 
+        "UTMN",
         "AQUIFER",
-        "CASE_DEPTH", 
+        "CASE_DEPTH",
         "DEPTH_DRLL",
-        "CASE_DIAM", 
+        "CASE_DIAM",
         "WELLID"
         ]
 
@@ -97,9 +97,9 @@ def find_wells(target_well, radius):
         "(DEPTH_DRLL > 0) AND "
         "(CASE_DIAM is not NULL) AND "
         "(CASE_DIAM > 0) AND "
-         f"AQUIFER = '{initial_well[0][2]}'"
+        f"AQUIFER = '{initial_well[0][2]}'"
         )
-    with arcpy.da.SearchCursor(allwells, field_names , where_clause) as cursor:
+    with arcpy.da.SearchCursor(allwells, field_names, where_clause) as cursor:
         for row in cursor:
             utm_east = row[0]
             utm_north = row[1]
@@ -109,38 +109,39 @@ def find_wells(target_well, radius):
             screen = row[4] - row[3]
             #Calculates casing radius
             radius_well = row[5]/24
-            values = [utm_east, utm_north, aquifer, screen, radius_well, relationid]
+            values = [utm_east, utm_north, aquifer, screen,\
+                      radius_well, relationid]
             well_data.append(values)
     xy = np.array([[well[0], well[1]] for well in well_data])
     tree = spatial.cKDTree(xy)
-    candidate_well_index = tree.query_ball_point(data, radius) #finds wells inside the boundary condition
+    candidate_well_index = tree.query_ball_point(data, radius)#finds wells inside the boundary condition
     candidate_wells = []
     for i in candidate_well_index:
         candidate_wells.append(well_data[i])
-    candidate_wells.sort(key = lambda x: x[5]) #sorts by ascending WELLID number   
+    candidate_wells.sort(key=lambda x: x[5])#sorts by ascending WELLID number
     return candidate_wells
 
 def pump_log(candidate_wells):
-    
+
     """Uses candidate_wells to retrieve data from the CWI Pump Log attribute
        table.
-       
+
     Retrieves specific capcity test data from the CWI Pump Log table. In order
     for a well to be considered, it must have the same Relate ID as one or
     more entries in candidate wells. This function retrieves data regarding
     pump rate, duration of the specific capacity test, Static Water Level, and
     Pumping Water Level (after the pumping has stopped). These are then recorded
     in a list for analysis.
-    
+
     Parameters
     ----------
     candidate_wells: list
         candidate_wells is a list that contains the UTM easting and northing (int),
-        Aquifer code (str), screen length (float), casing radius (float), 
-        and Relate ID (str). All entries in this list are located within the 
-        RADIUS of the targetwell and draw water from the same aquifer as 
+        Aquifer code (str), screen length (float), casing radius (float),
+        and Relate ID (str). All entries in this list are located within the
+        RADIUS of the targetwell and draw water from the same aquifer as
         the target well. This list is sorted by ascending Relate ID number.
-        
+
     Returns
     -------
     pump_log_wells: list
@@ -149,25 +150,25 @@ def pump_log(candidate_wells):
         in this list must also exist in candidate_wells and all of their
         respective field must be greater than zero and not null. This list is
         sorted by ascending Relate ID number.
-        
+
     Notes
     -----
-    
-    The pump rate data is converted from gallons per minute [gpm] to cubic feet 
-    per day [ft^3/day]. 
-    
+
+    The pump rate data is converted from gallons per minute [gpm] to cubic feet
+    per day [ft^3/day].
+
     The test duration is converted from hours to days.
-    
+
     """
     pump_log_wells = []
     requested_values = [
-            "FLOW_RATE",
-            "DURATION", 
-            "START_MEAS", 
-            "PUMP_MEAS", 
-            "WELLID"
-            ]
-    
+        "FLOW_RATE",
+        "DURATION", 
+        "START_MEAS", 
+        "PUMP_MEAS", 
+        "WELLID"
+        ]
+
     where_clause = (
         "(WELLID is not NULL) AND "
         "(FLOW_RATE is not NULL) AND "
@@ -178,9 +179,9 @@ def pump_log(candidate_wells):
         "(START_MEAS > 0) AND "
         "(PUMP_MEAS is not NULL) AND "
         "(PUMP_MEAS > 0) AND "
-         f"WELLID in {tuple([i[5] for i in candidate_wells])}"
-         )
-    
+        f"WELLID in {tuple([i[5] for i in candidate_wells])}"
+        )
+
     with arcpy.da.SearchCursor(CWIPL, requested_values, where_clause) as cursor:
         for row in cursor:
             wellid = row[4]
@@ -195,48 +196,47 @@ def pump_log(candidate_wells):
             down = row[3] - row[2] #How to account for uncertainty of drawdown?
             if down <= 0: #filters out entries where drawdown equals 0
                 continue
-            value = [rate_min, rate_max, dur, down, wellid]   
+            value = [rate_min, rate_max, dur, down, wellid]
             pump_log_wells.append(value)
-        pump_log_wells.sort(key = lambda x: x[4]) #sorts list by Relate ID number
+        pump_log_wells.sort(key=lambda x: x[4])#sorts list by Relate ID number
     return pump_log_wells
 
 
 def aquifer_thickness(candidate_wells):
     """Uses the Well ID from candidate_wells to retrieve data about aquifer
-    thickness. 
-    
+    thickness.
+
     This function retrieves data regarding aquifer thickness from the CWI_HYDRO
     (THICKNESS) attribute table supplied by Rich Soule from the Minnesota
     Department of Health. The data in this table is queried using the Well ID
     values from candidate_wells. This data will then be returned to analyize_wells
     and then appended to the confirmed_wells table for analysis.
-    
+
     Parameters
     ----------
     candidate_wells: list
         candidate_wells is a list that contains the UTM easting and northing (int),
-        Aquifer code (str), screen length (float), casing radius (float), 
-        and Relate ID (str). All entries in this list are located within the 
-        RADIUS of the targetwell and draw water from the same aquifer as 
+        Aquifer code (str), screen length (float), casing radius (float),
+        and Relate ID (str). All entries in this list are located within the
+        RADIUS of the targetwell and draw water from the same aquifer as
         the target well. This list is sorted by ascending Relate ID number.
-        
+
     Returns
     -------
     thickness_aquired: list
         A list of Well ID (long) and aquifer thickness values(float).
     """
     thickness_aquired = []
-    
     requested_values = [
-           "AQ_THICK",
-           "WELLID"
-            ]
+        "AQ_THICK",
+        "WELLID"
+        ]
     where_clause = (
         "(WELLID is not NULL) AND "
         "(AQ_THICK is not NULL) AND "
         "(AQ_THICK > 0) AND "
-         f"WELLID in {tuple([i[5] for i in candidate_wells])}"
-         )
+        f"WELLID in {tuple([i[5] for i in candidate_wells])}"
+        )
     with arcpy.da.SearchCursor(THICKNESS, requested_values, where_clause) as cursor:
         for row in cursor:
             thickness_values = row[0]
@@ -248,30 +248,30 @@ def aquifer_thickness(candidate_wells):
 def storativity_calculations(candidate_wells, thickness_data):
     """This function uses the aquifer thickness data to calculate the storage
     coefficient for each well.
-    
+
     This function uses the data retrieved from aquifer_thickness to determine
     the storage coeffient of each individual well. These calculations are based
     on the following equation:
-        
+
     S = Ss * b
-    
-    where S [-] is the storage coefficent, Ss [ft^-1] is the specific storage, 
-    and b [ft] is the aquifer thickness. Ss values are a material based 
+
+    where S [-] is the storage coefficent, Ss [ft^-1] is the specific storage,
+    and b [ft] is the aquifer thickness. Ss values are a material based
     property and have been approximated (Batu pg.61). This function uses a range
     of values to determine a range of storage values for each observed well.
-    
+
     Parameters
     ----------
     candidate_wells: list
         candidate_wells is a list that contains the UTM easting and northing (int),
-        Aquifer code (str), screen length (float), casing radius (float), 
-        and Relate ID (str). All entries in this list are located within the 
-        RADIUS of the targetwell and draw water from the same aquifer as 
+        Aquifer code (str), screen length (float), casing radius (float),
+        and Relate ID (str). All entries in this list are located within the
+        RADIUS of the targetwell and draw water from the same aquifer as
         the target well. This list is sorted by ascending Well ID number.
-    
+
     thickness_aquired: list
         A list of Well ID (long) and aquifer thickness values(float).
-        
+
     Returns
     -------
     thickness_storativity_data: list
@@ -279,7 +279,7 @@ def storativity_calculations(candidate_wells, thickness_data):
         (float), miniumum storage coefficent (float), maximum storage
         coefficent (float), and Well ID (int). This list is sorted by acsending
         Well ID.
-    
+
     """
     #Will approximate for more aquifer codes over time
     thickness_storativity_data = []
@@ -316,53 +316,57 @@ def storativity_calculations(candidate_wells, thickness_data):
         S_min = Ss_min * b
         data = [b, S_min, S_max, well_id]
         thickness_storativity_data.append(data)
-        thickness_storativity_data.sort(key = lambda x: x[3]) #sorts list by Well ID number
+        thickness_storativity_data.sort(key=lambda x: x[3]) #sorts list by Well ID number
     return thickness_storativity_data
 
 
 def data_organization(candidate_wells, pump_log_results, thickness_storativity_data):
     """This function organizes the candidate_wells and the pump_log_results
     lists into one large data set.
-    
+
     This function creates one large data set that relates the candidate_wells
     and pump_log_results lists into one large list that is connected by
     Relate ID. This function filters out entries that do not exist only one
     of the two tables. The function also includes entries that have multiple
     entries in either table.
-    
+
     Parameters
     ----------
     candidate_wells: list
         candidate_wells is a list that contains the UTM easting and northing (int),
-        Aquifer code (str), screen length (float), casing radius (float), 
-        and Relate ID (str). All entries in this list are located within the 
-        RADIUS of the targetwell and draw water from the same aquifer as 
+        Aquifer code (str), screen length (float), casing radius (float),
+        and Relate ID (str). All entries in this list are located within the
+        RADIUS of the targetwell and draw water from the same aquifer as
         the target well. This list is sorted by ascending Relate ID number.
-        
+
     pump_log_results: list
         pump_log_wells is a list that contains the Pump Rate (float),
         Duration (float), Drawdown (float), and Relate ID (str). All entries
         in this list must also exist in candidate_wells and all of their
         respective field must be greater than zero and not null. This list is
         sorted by ascending Relate ID number.
-    
+
     thickness_storativity_data: list
         thickness_storativity_data is a list that contains the aquifer thickness
         (float), miniumum storage coefficent (float), maximum storage
         coefficent (float), and Well ID (int). This list is sorted by acsending
         Well ID.
-        
+
     Results
     -------
-    confirmed_wells: list[list1, list2]
+    confirmed_wells: list[list1, list2, list3]
         This is a list of all pertinant information required to plot the wells
-        spacially and calculate Transmissivity.
-    
-        list1 = list[UTME (int), UTMN (int), AQUIFER (str), Screen Length (float), 
-                     Casing Radius (ft), Relate ID (str)]
-    
-        list 2 = list[Pump Rate (float), Duration (float), Drawdown (float), 
-                      Relate ID (str)]
+        spacially and calculate transmissivity / hydraulic conductivity.
+
+        list1 = list[UTME (int), UTMN (int), AQUIFER (str), Screen Length (float),
+                     Casing Radius (ft), Well ID (int)]
+
+        list 2 = list[Pump Rate (float), Duration (float), Drawdown (float),
+                      Well ID (int)]
+
+        list 3 = list[aquifer thickness (float),
+                      miniumum storage coefficent (float), maximum storage
+                      coefficent (float), and Well ID (int)]
     """
     confirmed_wells = []
     for item in pump_log_results:
@@ -375,5 +379,3 @@ def data_organization(candidate_wells, pump_log_results, thickness_storativity_d
 
 
 
-            
-            

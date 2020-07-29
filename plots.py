@@ -8,12 +8,28 @@ Functions
 plot_histogram_transmissivity:
     Creates a histogram of the natural logorithem of the calculated Transmissivities.
     
-plot_spacial_transmissicity:
+plot_spacial_transmissivity:
+    Creates a scatterplot where each well is plotted at its UTM coordinates.
+    Each point is colored baised on a log10 color ramp where the points 
+    become darker as transmissivity increases.
+    
+plot_spacial_conductivity:
+    Creates a scatterplot where each well is plotted at its UTM 
+    coordinates. Each point is colored baised on a log10 color ramp where the 
+    points become darker as hydraulic conductivity increases.
+    
+plot_spacial_thickness:
     Creates a scatter plot where each point is plotted at its UTM coordinates.
-    Each point is colored baised on which decile its Transmissivity lies in.
-
+    Each point is colored baised on a color ramp where the points become darker
+    as aquifer thickness increases.
+    
+Pump_Durations_Plots:
+    This is a temporary file that has been used to create a series of plots
+    that show rounding bias in the CWI data base. These plots have been added
+    to my technical writeup.
+    
 Author: Jonny Full
-Version: 6/26/2020
+Version: 7/29/2020
 """
 import arcpy
 import seaborn as sns
@@ -56,7 +72,6 @@ def plot_spacial_transmissivity(target_well, radius, confirmed_wells, transmissi
     
     Parameters
     ----------
-    ----------
     target_well: string
         The RELATEID of the well input by the user in Verify.
         Example : '0000123456'
@@ -88,9 +103,11 @@ def plot_spacial_transmissivity(target_well, radius, confirmed_wells, transmissi
         
     Notes
     -----
-    This function returnes a scatter plot. The axis will use the UTM Easting (x)
+    This function returns a scatterplot. The axis will use the UTM Easting (x)
     and UTM Northing (y) on its axis. The plotted points will be color coded
-    depending on the decile that their respective transmissivity fall into.
+    where each well will become darker as Transmissivity increases. The color
+    ramp used is on a log10 scale. The target well is represented by a red
+    square on the plot.
     """
     plt.figure(2)
     distribute_t = []
@@ -116,9 +133,10 @@ def plot_spacial_transmissivity(target_well, radius, confirmed_wells, transmissi
     plt.ylabel("UTM Northing")
     plt.axis('equal')
 
-def plot_spacial_conductivity(target_well, radius, confirmed_wells, conductivity_calculated, target_coords):
+def plot_spacial_conductivity(target_well, radius, confirmed_wells,\
+                              conductivity_calculated, target_coords):
     """Plots the confirmed_wells geographical location and shows the 
-    Transmissivity for each well.
+    Hydraulic Conductivity for each well.
     
     Parameters
     ----------
@@ -135,7 +153,7 @@ def plot_spacial_conductivity(target_well, radius, confirmed_wells, conductivity
         
     confirmed_wells: list[[list1][list2]]
         This is a list of all pertinant information required to plot the wells
-        spacially and calculate Transmissivity.
+        spacially and calculate Transmissivity/Hydraulic Conductivity.
     
         list1 = list[UTME (int), UTMN (int), AQUIFER (str), Screen Length (float), 
                      Casing Radius (ft), Relate ID (str)
@@ -154,9 +172,11 @@ def plot_spacial_conductivity(target_well, radius, confirmed_wells, conductivity
         
     Notes
     -----
-    This function returnes a scatter plot. The axis will use the UTM Easting (x)
-    and UTM Northing (y) on its axis. The plotted points will be color coded
-    depending on the decile that their respective transmissivity fall into.
+    This function returns a scatterplot. The axis will use the UTM Easting (x)
+    and UTM Northing (y) on its axis. The plotted points are color coded so that
+    they will get darker as the hydralic conductivity increases. The colorbar
+    being used in based on a log10 scale. The target well input by the user
+    is represented by a blue diamond on the plot.
     """
     
     plt.figure(3)
@@ -181,8 +201,47 @@ def plot_spacial_conductivity(target_well, radius, confirmed_wells, conductivity
     plt.ylabel("UTM Northing")
     plt.axis('equal')
     
-def spacial_thickness_plots(target_well, radius, confirmed_wells, target_coords):   
-    plt.figure(4)
+def plot_spacial_thickness(target_well, radius, confirmed_wells, target_coords):
+    """Plots the confirmed_wells geographical location and shows the 
+    Aquifer Thickness for each well.
+    
+    Parameters
+    ----------
+    ----------
+    target_well: string
+        The RELATEID of the well input by the user in Verify.
+        Example : '0000123456'
+        
+    RADIUS: int (meters)
+        RADIUS represents a boundry condition for the scope of analysis. 
+        Any wells used in future calculations fall within this distance of the
+        target well. 
+        Example: 10000 (meters)
+        
+    confirmed_wells: list[[list1][list2]]
+        This is a list of all pertinant information required to plot the wells
+        spacially and calculate Transmissivity.
+    
+        list 1 = list[UTME (int), UTMN (int), AQUIFER (str), Screen Length (float), 
+                     Casing Radius (ft), Relate ID (str)
+        
+        list 2 = list[Pump Rate (float), Duration (float), Drawdown (float), 
+                     Relate ID (str)]
+    
+    target_coords:list
+        Contains the UTM coordinates of the original well input by the user.
+        This data will be used to create a unique data point on the scatterplot
+        to represent the location of the target well.
+        
+    Notes
+    -----
+    This function returns a scatterplot. The axis will use the UTM Easting (x)
+    and UTM Northing (y) on its axis. The plotted points will be color coded
+    based on the colorbar that is displayed. The color of the points will get
+    darker as aquifer's thickness increases. The location of the target well
+    can be identified by the purple X on the plot.
+    """
+    plt.figure(3)
     x = [i[0][0] for i in confirmed_wells]
     y = [i[0][1] for i in confirmed_wells]
     thickness = [i[2][0] for i in confirmed_wells]
@@ -217,7 +276,8 @@ def Pump_Durations_Plots():
         "(PUMP_MEAS is not NULL) AND "
         "(PUMP_MEAS > 0)"
          )
-    with arcpy.da.SearchCursor(CWIPL, ['FLOW_RATE', 'DURATION', 'START_MEAS', 'PUMP_MEAS'], where_clause) as cursor:
+    with arcpy.da.SearchCursor(CWIPL, ['FLOW_RATE', 'DURATION', 'START_MEAS',\
+                                       'PUMP_MEAS'], where_clause) as cursor:
         for row in cursor:
             down = row[3] - row[2]
             stuff = [row[0], row[1], down]
@@ -260,8 +320,10 @@ def Pump_Durations_Plots():
         
         fig, ax = plt.subplots(1,1)
         plt.figure(4)
-        plt.grid(which='minor', linestyle=':', linewidth='0.5', color='gray', zorder = 0)
-        plt.grid(which='major', linestyle='-', linewidth='0.5', color='black', zorder = 0)
+        plt.grid(which='minor', linestyle=':', linewidth='0.5', color='gray',\
+                 zorder = 0)
+        plt.grid(which='major', linestyle='-', linewidth='0.5', color='black',\
+                 zorder = 0)
         plt.scatter(PUMP_DATA, DUR_DATA, zorder = 3)
         plt.xticks(fontsize = 24)
         plt.yticks(fontsize = 24)
