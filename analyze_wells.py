@@ -17,7 +17,7 @@ Notes
     data tables used by this function on the user's computer.
 
 Author: Jonny Full
-Version: 7/13/2020
+Version: 7/30/2020
 -------------------------------------------------------------------------------
 """
 #COMPLETE
@@ -28,9 +28,9 @@ aquifer_thickness, storativity_calculations
 from plots import plot_histogram_transmissivity, plot_spacial_transmissivity,\
 plot_spacial_conductivity, plot_spacial_thickness
 target_coords = []
-target_well, rad = Verify()
+target_well, rad, error_bounds = Verify()
 radius = int(rad) #meters
-candidate_wells = find_wells(target_well, radius)
+candidate_wells = find_wells(target_well, radius, error_bounds)
 
 for row in candidate_wells:
     if int(target_well) == row[5]:
@@ -40,20 +40,20 @@ for row in candidate_wells:
         data = [utm_e, utm_n, well_id]
         target_coords.append(data)
 
-pump_log_results = pump_log(candidate_wells)
-thickness_data = aquifer_thickness(candidate_wells)
+pump_log_results = pump_log(candidate_wells, error_bounds)
+thickness_data = aquifer_thickness(candidate_wells, error_bounds)
 thickness_storativity_data = storativity_calculations(candidate_wells, thickness_data)
 confirmed_wells = data_organization(candidate_wells, pump_log_results, thickness_storativity_data)
 transmissivity_calculated = transmissivity_calculations(confirmed_wells)
 plot_histogram_transmissivity(transmissivity_calculated)
 conductivity_calculated = conductivity_calculations(confirmed_wells, transmissivity_calculated)
-plot_spacial_transmissivity(target_well, radius, confirmed_wells,\
-                            transmissivity_calculated, target_coords)
-plot_spacial_conductivity(target_well, radius, confirmed_wells,\
-                          conductivity_calculated, target_coords)
-plot_spacial_thickness(target_well, radius, confirmed_wells, target_coords)
+#plot_spacial_transmissivity(target_well, radius, confirmed_wells,\
+#                            transmissivity_calculated, target_coords)
+#plot_spacial_conductivity(target_well, radius, confirmed_wells,\
+#                          conductivity_calculated, target_coords)
+#plot_spacial_thickness(target_well, radius, confirmed_wells, target_coords)
 
-"""
+
 t_min = [i[0] for i in transmissivity_calculated]
 t_max = [i[1] for i in transmissivity_calculated]
 k_min = [i[0] for i in conductivity_calculated]
@@ -62,7 +62,8 @@ well_id = [i[0][5] for i in confirmed_wells]
 combine_data = {'Minimum Transmissivity' : t_min, 'Maximum Transmissivity' : t_max,\
                 'Minimum Hydraulic Conductivity' : k_min, 'Maximum Hydralic Conductivity' : k_max,\
                 'Well ID': well_id}
-with open('Returned Data.csv', 'w') as f:
+"""
+with open('Foo.csv', 'w') as f:
     for key in combine_data.keys():
         f.write("%s,%s\n"%(key,combine_data[key]))
 """

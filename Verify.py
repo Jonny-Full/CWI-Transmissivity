@@ -35,7 +35,6 @@ def Verify():
     
     """
     target_well = input("Please input a WellID number: ") #This is easier/ more simple for the user
-    #target_well = "0000" + target_well
     with arcpy.da.SearchCursor(CWIPL , ["WELLID"], f"WELLID = {target_well}") as cursor:
         for row in cursor:   
             break
@@ -50,4 +49,5 @@ def Verify():
             print("Well ID not found.")
             sys.exit()  #Terminates the function
     rad = input('Please input the radius from the target well (in meters): ')
-    return target_well, rad
+    error_bounds = int(input('Please enter the error bounds for your calculations(ft): '))
+    return target_well, rad, error_bounds

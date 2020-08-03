@@ -34,7 +34,7 @@ from scipy import spatial
 import arcpy
 from data_location import allwells, CWIPL, THICKNESS
 
-def find_wells(target_well, radius):
+def find_wells(target_well, radius, error_bounds):
     """ Use the target well input by the user to find all wells within a given
     distance of the target well.
 
@@ -104,13 +104,21 @@ def find_wells(target_well, radius):
             utm_east = row[0]
             utm_north = row[1]
             aquifer = row[2]
-            relationid = row[6]
+            well_id = row[6]
             #Calculates Screen Length
-            screen = row[4] - row[3]
+            drill_depth_min = row[4] - error_bounds
+            drill_depth_max = row[4] + error_bounds
+            case_depth_min = row[3] - error_bounds
+            case_depth_max = row[3] + error_bounds
+            screen_len_min = drill_depth_min - case_depth_max
+            screen_len = row[4] - row[3]
+            screen_len_max = drill_depth_max - case_depth_min
             #Calculates casing radius
-            radius_well = row[5]/24
-            values = [utm_east, utm_north, aquifer, screen,\
-                      radius_well, relationid]
+            radius_well = row[5]/24 #converts well diameter(inches) to well radius in feet
+            if screen_len_min < 0: #filters out negative values
+                continue
+            values = [utm_east, utm_north, aquifer, screen_len_min, screen_len,\
+                      screen_len_max, radius_well, well_id]
             well_data.append(values)
     xy = np.array([[well[0], well[1]] for well in well_data])
     tree = spatial.cKDTree(xy)
@@ -118,10 +126,10 @@ def find_wells(target_well, radius):
     candidate_wells = []
     for i in candidate_well_index:
         candidate_wells.append(well_data[i])
-    candidate_wells.sort(key=lambda x: x[5])#sorts by ascending WELLID number
+    candidate_wells.sort(key=lambda x: x[7])#sorts by ascending WELLID number
     return candidate_wells
 
-def pump_log(candidate_wells):
+def pump_log(candidate_wells, error_bounds):
 
     """Uses candidate_wells to retrieve data from the CWI Pump Log attribute
        table.
@@ -179,30 +187,37 @@ def pump_log(candidate_wells):
         "(START_MEAS > 0) AND "
         "(PUMP_MEAS is not NULL) AND "
         "(PUMP_MEAS > 0) AND "
-        f"WELLID in {tuple([i[5] for i in candidate_wells])}"
+        f"WELLID in {tuple([i[7] for i in candidate_wells])}"
         )
 
     with arcpy.da.SearchCursor(CWIPL, requested_values, where_clause) as cursor:
         for row in cursor:
             wellid = row[4]
             #Calculates pump rate
-            pump_rate_min = row[0] - 5
-            pump_rate_max = row[0] + 5
+            pump_rate_min = row[0] - error_bounds
+            pump_rate_max = row[0] + error_bounds
             rate_min = pump_rate_min*192.5 #converts from gal/min to ft^3/day
+            rate = row[0]*192.5 #original data
             rate_max = pump_rate_max*192.5
             #Calculates pump duration in days
             dur = row[1]/24
             #Calculates Drawdown
-            down = row[3] - row[2] #How to account for uncertainty of drawdown?
-            if down <= 0: #filters out entries where drawdown equals 0
+            static_wl_min = row[2] - error_bounds
+            static_wl_max = row[2] + error_bounds
+            pump_wl_min = row[3] - error_bounds
+            pump_wl_max = row[3] + error_bounds
+            down_min = pump_wl_min - static_wl_max
+            down = row[3] - row[2]
+            down_max = pump_wl_max - static_wl_min
+            if down_min < 0: #filters out entries where drawdown less\ equals 0
                 continue
-            value = [rate_min, rate_max, dur, down, wellid]
+            value = [rate_min, rate, rate_max, dur, down_min, down, down_max, wellid]
             pump_log_wells.append(value)
-        pump_log_wells.sort(key=lambda x: x[4])#sorts list by Relate ID number
+        pump_log_wells.sort(key=lambda x: x[7])#sorts list by Relate ID number
     return pump_log_wells
 
 
-def aquifer_thickness(candidate_wells):
+def aquifer_thickness(candidate_wells, error_bounds):
     """Uses the Well ID from candidate_wells to retrieve data about aquifer
     thickness.
 
@@ -235,7 +250,7 @@ def aquifer_thickness(candidate_wells):
         "(WELLID is not NULL) AND "
         "(AQ_THICK is not NULL) AND "
         "(AQ_THICK > 0) AND "
-        f"WELLID in {tuple([i[5] for i in candidate_wells])}"
+        f"WELLID in {tuple([i[7] for i in candidate_wells])}"
         )
     with arcpy.da.SearchCursor(THICKNESS, requested_values, where_clause) as cursor:
         for row in cursor:
@@ -372,10 +387,15 @@ def data_organization(candidate_wells, pump_log_results, thickness_storativity_d
     for item in pump_log_results:
         for row in candidate_wells:
             for data in thickness_storativity_data:
-                if row[5] == item[4] == data[3]:
+                if row[7] == item[7] == data[3]:
                     value = [row, item, data]
                     confirmed_wells.append(value)
     return confirmed_wells
 
-
-
+if __name__ == '__main__':
+    # execute only if run as a script
+    find_wells(target_well, radius, error_bounds)
+    pump_log(candidate_wells, error_bounds)
+    aquifer_thickness(candidate_wells, error_bounds)
+    storativity_calculations(candidate_wells, thickness_data)
+    data_organization(candidate_wells, pump_log_results, thickness_storativity_data)

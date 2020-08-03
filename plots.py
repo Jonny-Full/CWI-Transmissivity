@@ -31,16 +31,15 @@ Pump_Durations_Plots:
 Author: Jonny Full
 Version: 7/29/2020
 """
-import arcpy
-import seaborn as sns
+import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
-import numpy as np
+import arcpy
+import seaborn as sns
 from data_location import allwells, CWIPL, THICKNESS
 from matplotlib.ticker import (MultipleLocator, FormatStrFormatter,
                                AutoMinorLocator)
 from matplotlib.backends.backend_pdf import PdfPages
-
 
 def plot_histogram_transmissivity(transmissivity_calculated):
     """Plots the natural log of the transmissivity values
@@ -82,7 +81,7 @@ def plot_spacial_transmissivity(target_well, radius, confirmed_wells, transmissi
         target well. 
         Example: 10000 (meters)
         
-    confirmed_wells: list[[list1][list2]]
+    confirmed_wells: list[[list1][list2][list3]]
         This is a list of all pertinant information required to plot the wells
         spacially and calculate Transmissivity.
     
@@ -91,6 +90,10 @@ def plot_spacial_transmissivity(target_well, radius, confirmed_wells, transmissi
         
         list 2 = list[Pump Rate (float), Duration (float), Drawdown (float), 
                      Relate ID (str)]
+        
+        list 3 = list[aquifer thickness (float),
+                      miniumum storage coefficent (float), maximum storage
+                      coefficent (float), and Well ID (int)]
     
     transmissivity_calculated: list
         A list of Transmissivities that were calculated from confirmed_wells. 
@@ -151,7 +154,7 @@ def plot_spacial_conductivity(target_well, radius, confirmed_wells,\
         target well. 
         Example: 10000 (meters)
         
-    confirmed_wells: list[[list1][list2]]
+    confirmed_wells: list[[list1][list2][list3]]
         This is a list of all pertinant information required to plot the wells
         spacially and calculate Transmissivity/Hydraulic Conductivity.
     
@@ -160,6 +163,10 @@ def plot_spacial_conductivity(target_well, radius, confirmed_wells,\
         
         list 2 = list[Pump Rate (float), Duration (float), Drawdown (float), 
                      Relate ID (str)]
+        
+        list 3 = list[aquifer thickness (float),
+                      miniumum storage coefficent (float), maximum storage
+                      coefficent (float), and Well ID (int)]
     
     conductivity_calculated: list
         A list of hydralic conductivities that were calculated from confirmed_wells. 
@@ -194,7 +201,7 @@ def plot_spacial_conductivity(target_well, radius, confirmed_wells,\
     cbar = plt.colorbar()
     cbar.set_label('ln() of Hydralic Conductivity', rotation = 270)
     sns.scatterplot([target_coords[0][0]], [target_coords[0][1]],\
-                    color='blue', marker = 'D', edgecolor = 'k',\
+                    color='red', marker = 's', edgecolor = 'k',\
                     s = 50, label = 'Target Well', zorder = 3)
     plt.title(f"Hydralic Conductivity for Wells within {radius} meters of Well ID {target_well}")
     plt.xlabel("UTM Easting")
@@ -218,7 +225,7 @@ def plot_spacial_thickness(target_well, radius, confirmed_wells, target_coords):
         target well. 
         Example: 10000 (meters)
         
-    confirmed_wells: list[[list1][list2]]
+    confirmed_wells: list[[list1][list2][list3]]
         This is a list of all pertinant information required to plot the wells
         spacially and calculate Transmissivity.
     
@@ -227,6 +234,10 @@ def plot_spacial_thickness(target_well, radius, confirmed_wells, target_coords):
         
         list 2 = list[Pump Rate (float), Duration (float), Drawdown (float), 
                      Relate ID (str)]
+        
+        list 3 = list[aquifer thickness (float),
+                      miniumum storage coefficent (float), maximum storage
+                      coefficent (float), and Well ID (int)]
     
     target_coords:list
         Contains the UTM coordinates of the original well input by the user.
@@ -241,7 +252,7 @@ def plot_spacial_thickness(target_well, radius, confirmed_wells, target_coords):
     darker as aquifer's thickness increases. The location of the target well
     can be identified by the purple X on the plot.
     """
-    plt.figure(3)
+    plt.figure(4)
     x = [i[0][0] for i in confirmed_wells]
     y = [i[0][1] for i in confirmed_wells]
     thickness = [i[2][0] for i in confirmed_wells]
@@ -250,7 +261,7 @@ def plot_spacial_thickness(target_well, radius, confirmed_wells, target_coords):
     cbar = plt.colorbar()
     cbar.set_label('Thickness (ft)', rotation = 270)
     sns.scatterplot([target_coords[0][0]], [target_coords[0][1]],\
-                    color='purple', marker = 'X', edgecolor = 'k',\
+                    color='red', marker = 's', edgecolor = 'k',\
                     s = 100, label = 'Target Well', zorder = 3)
     plt.title(f"Aquifer Thickness for wells within {radius} meters of Well ID {target_well}")
     plt.xlabel("UTM Easting")
@@ -280,11 +291,13 @@ def Pump_Durations_Plots():
                                        'PUMP_MEAS'], where_clause) as cursor:
         for row in cursor:
             down = row[3] - row[2]
-            stuff = [row[0], row[1], down]
-            VALUES.append(stuff)
+            if down > 0 and down < 100 and row[3] <=200:
+                stuff = [row[0], row[1], row[3], down]
+                VALUES.append(stuff)
         DUR_DATA = [i[1] for i in VALUES]
         PUMP_DATA = [i[0] for i in VALUES]
-        Drawdown_data = [i[2] for i in VALUES]
+        Water_Level = [i[2] for i in VALUES]
+        Drawdown_data = [i[3] for i in VALUES]
         plt.figure(1)
         plt.hist(DUR_DATA, bins = 48, label = 'Duration')
         plt.xlim([0, 12])
@@ -308,10 +321,19 @@ def Pump_Durations_Plots():
         plt.grid(True)
         
         plt.figure(3)
-        plt.hist(Drawdown_data, bins = 500, label = 'Pump Rata Data')
+        plt.hist(Water_Level, bins = 200, label = 'Static Level Data', edgecolor = 'k')
         plt.minorticks_on()
-        plt.xlim([0, 500])
-        plt.ylim([0, 100000])
+        plt.xticks(fontsize = 24)
+        plt.yticks(fontsize = 24)
+        plt.xlabel('Static Water Level [ft]', fontsize = 30)
+        plt.ylabel('Number of entries', fontsize = 30)
+        plt.grid(True)
+        
+        plt.figure(4)
+        plt.hist(Drawdown_data, bins = 100, label = 'Drawdown Data', color = 'g' , edgecolor = 'k')
+        plt.minorticks_on()
+#        plt.xlim([0, 100])
+#        plt.ylim([0, 100000])
         plt.xticks(fontsize = 24)
         plt.yticks(fontsize = 24)
         plt.xlabel('Drawdown [ft]', fontsize = 30)
@@ -319,7 +341,7 @@ def Pump_Durations_Plots():
         plt.grid(True)
         
         fig, ax = plt.subplots(1,1)
-        plt.figure(4)
+        plt.figure(5)
         plt.grid(which='minor', linestyle=':', linewidth='0.5', color='gray',\
                  zorder = 0)
         plt.grid(which='major', linestyle='-', linewidth='0.5', color='black',\
@@ -340,7 +362,12 @@ def Pump_Durations_Plots():
         ax.yaxis.set_minor_locator(MultipleLocator(0.5))
         ax.set_axisbelow(True)
 
-        
-         
-         
-         
+if __name__ == '__main__':
+# execute only if run as a script (comment out unnecessary functions)      
+    plot_histogram_transmissivity(transmissivity_calculated)
+    plot_spacial_transmissivity(target_well, radius, confirmed_wells,\
+                                transmissivity_calculated, target_coords)
+    plot_spacial_conductivity(target_well, radius, confirmed_wells,\
+                              conductivity_calculated, target_coords) 
+    plot_spacial_thickness(target_well, radius, confirmed_wells, target_coords)
+    Pump_Durations_Plots()
