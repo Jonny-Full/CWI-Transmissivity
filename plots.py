@@ -56,14 +56,26 @@ def plot_histogram_transmissivity(transmissivity_calculated):
     values. The histogram has 50 bars to represent a clear distribution.
     
     """
+    T_min = [i[0] for i in transmissivity_calculated]
+    T_guess = [i[1] for i in transmissivity_calculated]
+    T_max = [i[2] for i in transmissivity_calculated]
     plt.close('all')
     plt.figure(1)
-    plt.hist(np.log(transmissivity_calculated), bins=50, label = ['T_Min', 'T_Max'])
+    plt.hist(np.log(transmissivity_calculated), bins=50, label = ['T_Min', 'T', 'T_Max'])
     plt.title('Transmissivity Distribution')
     plt.xlabel('ln(T)')
     plt.ylabel('Number of entries')
-    plt.legend(['T_Min', 'T_Max'], loc = 'upper right')
-
+    plt.legend(['T_Min', 'T_Guess', 'T_Max'], loc = 'upper right')
+    
+    fig, axs = plt.subplots(3, sharex = True, sharey = True)
+    axs[0].hist(np.log(T_min), bins=100, label = ['T_Min'], color = 'red', edgecolor = 'k')
+    axs[1].hist(np.log(T_guess), bins=100, label = ['T_guess'], color = 'blue', edgecolor = 'k')
+    axs[2].hist(np.log(T_max), bins=100, label = ['T_max'], color = 'green', edgecolor = 'k')
+    fig.suptitle('Distributions of Transmissivity', fontsize = 30)
+    axs[2].set_xlabel('ln() of Transmissivity', fontsize = 24)
+    axs[1].set_ylabel('Number of Entries', fontsize = 24)
+    fig.legend()
+    
     
 def plot_spacial_transmissivity(target_well, radius, confirmed_wells, transmissivity_calculated, target_coords):
     """Plots the confirmed_wells geographical location and shows the 
@@ -120,14 +132,15 @@ def plot_spacial_transmissivity(target_well, radius, confirmed_wells, transmissi
     bounds = np.percentile(transmissivity_calculated, np.arange(0, 110, 10)) #calculates deciles
     #May not be necessary
     for row in T:
-        #Ask Barnes so I understand the logic entirely
-        decile = next(indx for indx, trans in enumerate(bounds) if trans > row)
+        for decile, trans in enumerate(bounds):
+            if trans > row:
+                 break
         distribute_t.append(decile)
     plt.grid(True, zorder = 0)
     plt.scatter(x, y, c = T, s = 30, cmap='Blues',\
                 norm = LogNorm(vmin= min(T), vmax=max(T)), zorder = 3)
     cbar = plt.colorbar()
-    cbar.set_label('ln() of Transmissivity', rotation = 270)
+    cbar.set_label('log10() of Transmissivity', rotation = 270, labelpad = 15)
     sns.scatterplot([target_coords[0][0]], [target_coords[0][1]], color='red',\
                     marker = 's', edgecolor = 'k', s = 50,\
                     label = 'Target Well', zorder = 3)
@@ -193,17 +206,19 @@ def plot_spacial_conductivity(target_well, radius, confirmed_wells,\
     K = [i[0] for i in conductivity_calculated]
     bounds = np.percentile(conductivity_calculated, np.arange(0, 110, 10)) #calculates deciles
     for row in K:
-        decile = next(indx for indx, trans in enumerate(bounds) if trans > row)
+        for decile, trans in enumerate(bounds):
+            if trans > row:
+                break
         distribute_K.append(decile)
     plt.grid(True, zorder = 0)
-    plt.scatter(x, y, c = K, s = 30, cmap='Reds',\
+    plt.scatter(x, y, c = K, s = 30, cmap='Purples',\
                 norm = LogNorm(vmin= min(K), vmax=max(K)), zorder = 3)
     cbar = plt.colorbar()
-    cbar.set_label('ln() of Hydralic Conductivity', rotation = 270)
+    cbar.set_label('log10() of Hydraulic Conductivity', rotation = 270, labelpad = 15)
     sns.scatterplot([target_coords[0][0]], [target_coords[0][1]],\
                     color='red', marker = 's', edgecolor = 'k',\
                     s = 50, label = 'Target Well', zorder = 3)
-    plt.title(f"Hydralic Conductivity for Wells within {radius} meters of Well ID {target_well}")
+    plt.title(f"Hydraulic Conductivity for Wells within {radius} meters of Well ID {target_well}")
     plt.xlabel("UTM Easting")
     plt.ylabel("UTM Northing")
     plt.axis('equal')
@@ -259,7 +274,7 @@ def plot_spacial_thickness(target_well, radius, confirmed_wells, target_coords):
     plt.grid(True, zorder = 0)
     plt.scatter(x, y, c = thickness, s = 30, cmap='Greens',zorder = 3)
     cbar = plt.colorbar()
-    cbar.set_label('Thickness (ft)', rotation = 270)
+    cbar.set_label('Thickness (ft)', rotation = 270, labelpad = 15)
     sns.scatterplot([target_coords[0][0]], [target_coords[0][1]],\
                     color='red', marker = 's', edgecolor = 'k',\
                     s = 100, label = 'Target Well', zorder = 3)
@@ -365,9 +380,9 @@ def Pump_Durations_Plots():
 if __name__ == '__main__':
 # execute only if run as a script (comment out unnecessary functions)      
     plot_histogram_transmissivity(transmissivity_calculated)
-    plot_spacial_transmissivity(target_well, radius, confirmed_wells,\
-                                transmissivity_calculated, target_coords)
-    plot_spacial_conductivity(target_well, radius, confirmed_wells,\
-                              conductivity_calculated, target_coords) 
-    plot_spacial_thickness(target_well, radius, confirmed_wells, target_coords)
-    Pump_Durations_Plots()
+#    plot_spacial_transmissivity(target_well, radius, confirmed_wells,\
+#                                transmissivity_calculated, target_coords)
+#    plot_spacial_conductivity(target_well, radius, confirmed_wells,\
+#                              conductivity_calculated, target_coords) 
+#    plot_spacial_thickness(target_well, radius, confirmed_wells, target_coords)
+#    Pump_Durations_Plots()

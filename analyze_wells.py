@@ -47,12 +47,11 @@ confirmed_wells = data_organization(candidate_wells, pump_log_results, thickness
 transmissivity_calculated = transmissivity_calculations(confirmed_wells)
 plot_histogram_transmissivity(transmissivity_calculated)
 conductivity_calculated = conductivity_calculations(confirmed_wells, transmissivity_calculated)
-#plot_spacial_transmissivity(target_well, radius, confirmed_wells,\
-#                            transmissivity_calculated, target_coords)
-#plot_spacial_conductivity(target_well, radius, confirmed_wells,\
-#                          conductivity_calculated, target_coords)
-#plot_spacial_thickness(target_well, radius, confirmed_wells, target_coords)
-
+plot_spacial_transmissivity(target_well, radius, confirmed_wells,\
+                            transmissivity_calculated, target_coords)
+plot_spacial_conductivity(target_well, radius, confirmed_wells,\
+                          conductivity_calculated, target_coords)
+plot_spacial_thickness(target_well, radius, confirmed_wells, target_coords)
 
 t_min = [i[0] for i in transmissivity_calculated]
 t_max = [i[1] for i in transmissivity_calculated]

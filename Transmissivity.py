@@ -69,15 +69,13 @@ def transmissivity_calculations(confirmed_wells):
     S_min = [i[2][1] for i in confirmed_wells] #storativity = S temporary constant
     S_max = [i[2][2] for i in confirmed_wells]
     Q_min = [i[1][0] for i in confirmed_wells]
-    Q_med = [i[1][1] for i in confirmed_wells]
+    Q = [i[1][1] for i in confirmed_wells]
     Q_max = [i[1][2] for i in confirmed_wells]
     t = [i[1][3] for i in confirmed_wells]
     s_min = [i[1][4] for i in confirmed_wells]
     s = [i[1][5] for i in confirmed_wells]
     s_max = [i[1][6] for i in confirmed_wells]
-    L_min = [i[0][3] for i in confirmed_wells]
-    L = [i[0][4] for i in confirmed_wells]
-    L_max = [i[0][4] for i in confirmed_wells]
+    L = [i[0][3] for i in confirmed_wells]
     rw = [i[0][4] for i in confirmed_wells]
     b = [i[2][0] for i in confirmed_wells]
     for i in range(len(Q_min)):
@@ -103,19 +101,19 @@ def transmissivity_calculations(confirmed_wells):
             sp = 0
         while (T_min - LastValue) >= 0.001:
             LastValue = T_min
-            T_min = (Q_min[i]/(4*math.pi*(s[i])))*\
+            T_min = (Q_min[i]/(4*math.pi*(s_max[i])))*\
             (math.log((2.25*T_min* t[i])/((rw[i]**2) * S_max[i])) + (2*sp))
         
         LastValue = 0
         while (T - LastValue) >= 0.001:
             LastValue = T
-            T = (Q_med[i]/(4*math.pi*(s[i])))*\
+            T = (Q[i]/(4*math.pi*(s[i])))*\
             (math.log((2.25*T* t[i])/((rw[i]**2) * S_max[i])) + (2*sp))
         
         LastValue = 0 
         while (T_max - LastValue) >= 0.001:
             LastValue = T_max
-            T_max = (Q_max[i]/(4*math.pi*(s[i])))*\
+            T_max = (Q_max[i]/(4*math.pi*(s_min[i])))*\
             (math.log((2.25*T_max* t[i])/((rw[i]**2) * S_min[i])) + (2*sp))
         T_range = [T_min, T, T_max]
         transmissivity_calculated.append(T_range)
@@ -145,17 +143,19 @@ def conductivity_calculations(confirmed_wells, transmissivity_calculated):
     """
     b = [i[2][0] for i in confirmed_wells]
     T_min = [i[0] for i in transmissivity_calculated]
-    T_max = [i[1] for i in transmissivity_calculated]
+    T_guess = [i[0] for i in transmissivity_calculated]
+    T_max = [i[2] for i in transmissivity_calculated]
 #    well_identify = [i[2] for i in transmissivity_calculated]
     hydro_cond = []
     for i in range(len(transmissivity_calculated)):
 #        well_id = well_identify[i]
         K_min = T_min[i] / b[i]
+        K_guess = T_guess[i] / b[i]
         K_max = T_max[i] / b[i]
-        K_values = [K_min, K_max]
+        K_values = [K_min, K_guess, K_max]
         hydro_cond.append(K_values)
     return hydro_cond
 
-if __name__ == '__main__':
-    transmissivity_calculations(confirmed_wells)
-    conductivity_calculations(confirmed_wells, transmissivity_calculated)
+#if __name__ == '__main__':
+#    transmissivity_calculations(confirmed_wells)
+#    conductivity_calculations(confirmed_wells, transmissivity_calculated)
