@@ -60,22 +60,26 @@ def plot_histogram_transmissivity(transmissivity_calculated):
     T_guess = [i[1] for i in transmissivity_calculated]
     T_max = [i[2] for i in transmissivity_calculated]
     plt.close('all')
-    plt.figure(1)
-    plt.hist(np.log(transmissivity_calculated), bins=50, label = ['T_Min', 'T', 'T_Max'])
-    plt.title('Transmissivity Distribution')
-    plt.xlabel('ln(T)')
-    plt.ylabel('Number of entries')
-    plt.legend(['T_Min', 'T_Guess', 'T_Max'], loc = 'upper right')
-    
     fig, axs = plt.subplots(3, sharex = True, sharey = True)
-    axs[0].hist(np.log(T_min), bins=100, label = ['T_Min'], color = 'red', edgecolor = 'k')
-    axs[1].hist(np.log(T_guess), bins=100, label = ['T_guess'], color = 'blue', edgecolor = 'k')
-    axs[2].hist(np.log(T_max), bins=100, label = ['T_max'], color = 'green', edgecolor = 'k')
-    fig.suptitle('Distributions of Transmissivity', fontsize = 30)
-    axs[2].set_xlabel('ln() of Transmissivity', fontsize = 24)
-    axs[1].set_ylabel('Number of Entries', fontsize = 24)
-    fig.legend()
-    
+    #logbins creates an evenly distributed log 10 array for our histograms
+    logbins = np.logspace(np.log10(min(T_min)),np.log10(max(T_min)),100)
+    axs[0].hist(T_min, bins = logbins, label = ['T_Min'], color = 'red',\
+       edgecolor = 'k', zorder = 3)    
+    logbins = np.logspace(np.log10(min(T_guess)),np.log10(max(T_guess)), 100)
+    axs[1].hist(T_guess, bins=logbins, label = ['Recorded Data'],\
+       color = 'blue', edgecolor = 'k', zorder = 3)    
+    logbins = np.logspace(np.log10(min(T_max)),np.log10(max(T_max)), 100)
+    axs[2].hist(T_max, bins= logbins, label = ['T_max'], color = 'green',\
+       edgecolor = 'k', zorder = 3)
+    axs[2].set_xlabel('Log 10 of Transmissivity', fontsize = 24)
+    axs[1].set_ylabel('Count', fontsize = 24)
+    plt.xscale('log')
+    axs[0].legend()
+    axs[1].legend()
+    axs[2].legend()
+    axs[0].grid(True, zorder = 0)
+    axs[1].grid(True, zorder = 0)
+    axs[2].grid(True, zorder = 0)
     
 def plot_spacial_transmissivity(target_well, radius, confirmed_wells, transmissivity_calculated, target_coords):
     """Plots the confirmed_wells geographical location and shows the 
@@ -124,7 +128,7 @@ def plot_spacial_transmissivity(target_well, radius, confirmed_wells, transmissi
     ramp used is on a log10 scale. The target well is represented by a red
     square on the plot.
     """
-    plt.figure(2)
+    plt.figure(3)
     distribute_t = []
     x = [i[0][0] for i in confirmed_wells]
     y = [i[0][1] for i in confirmed_wells]
@@ -199,7 +203,7 @@ def plot_spacial_conductivity(target_well, radius, confirmed_wells,\
     is represented by a blue diamond on the plot.
     """
     
-    plt.figure(3)
+    plt.figure(4)
     distribute_K = []
     x = [i[0][0] for i in confirmed_wells]
     y = [i[0][1] for i in confirmed_wells]
@@ -267,7 +271,7 @@ def plot_spacial_thickness(target_well, radius, confirmed_wells, target_coords):
     darker as aquifer's thickness increases. The location of the target well
     can be identified by the purple X on the plot.
     """
-    plt.figure(4)
+    plt.figure(5)
     x = [i[0][0] for i in confirmed_wells]
     y = [i[0][1] for i in confirmed_wells]
     thickness = [i[2][0] for i in confirmed_wells]
