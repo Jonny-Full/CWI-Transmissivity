@@ -38,33 +38,37 @@ def find_wells(target_well, radius, error_bounds):
     """ Use the target well input by the user to find all wells within a given
     distance of the target well.
 
-    Retrieves data on all wells that exist within the distance 'RADIUS' and
+    Retrieves data on all wells that exist within the distance 'radius' and
     draw water from the same 'AQUIFER' as the target well. This function
     does not include any wells that do not have any of the following parameters.
 
     Parameters
     ----------
-    target_well: string
-        The RELATEID of the well input by the user in Verify.
-        Example : '0000123456'
+    target_well: int
+        The WELLID of the well input by the user in Verify.
+        Example : 123456
 
-    RADIUS: int (meters)
+    radius: int (meters)
         RADIUS represents a boundry condition for the scope of analysis.
         Any wells used in future calculations fall within this distance of the
         target well.
         Example: 10000 (meters)
+        
+    error_bounds: int
+        error_bounds represents the limit on the bounds used for the
+        uncertainty surrounding the recorded values in the CWI database.
 
     Returns
     -------
     candidate_wells: list
         candidate_wells is a list that contains the UTM easting and northing (int),
         Aquifer code (str), screen length (float), casing radius (float),
-        and Relate ID (str). All entries in this list are located within the
+        and Well ID (str). All entries in this list are located within the
         RADIUS of the targetwell and draw water from the same aquifer as
-        the target well. This list is sorted by ascending Relate ID number.
+        the target well. This list is sorted by ascending Well ID number.
 
     Notes
-    -----
+    -----    
     The casing diameter value (inches) is converted to a radius and from inches
     to feet.
 
@@ -116,7 +120,8 @@ def find_wells(target_well, radius, error_bounds):
             well_data.append(values)
     xy = np.array([[well[0], well[1]] for well in well_data])
     tree = spatial.cKDTree(xy)
-    candidate_well_index = tree.query_ball_point(data, radius)#finds wells inside the boundary condition
+    #finds wells inside the boundary condition
+    candidate_well_index = tree.query_ball_point(data, radius)
     candidate_wells = []
     for i in candidate_well_index:
         candidate_wells.append(well_data[i])
@@ -142,7 +147,11 @@ def pump_log(candidate_wells, error_bounds):
         Aquifer code (str), screen length (float), casing radius (float),
         and Relate ID (str). All entries in this list are located within the
         RADIUS of the targetwell and draw water from the same aquifer as
-        the target well. This list is sorted by ascending Relate ID number.
+        the target well. This list is sorted by ascending Well ID number.
+        
+    error_bounds: int
+        error_bounds represents the limit on the bounds used for the
+        uncertainty surrounding the recorded values in the CWI database.
 
     Returns
     -------
@@ -151,7 +160,7 @@ def pump_log(candidate_wells, error_bounds):
         Duration (float), Drawdown (float), and Relate ID (str). All entries
         in this list must also exist in candidate_wells and all of their
         respective field must be greater than zero and not null. This list is
-        sorted by ascending Relate ID number.
+        sorted by ascending Well ID number.
 
     Notes
     -----
@@ -228,12 +237,16 @@ def aquifer_thickness(candidate_wells, error_bounds):
         Aquifer code (str), screen length (float), casing radius (float),
         and Relate ID (str). All entries in this list are located within the
         RADIUS of the targetwell and draw water from the same aquifer as
-        the target well. This list is sorted by ascending Relate ID number.
+        the target well. This list is sorted by ascending Well ID number.
+        
+    error_bounds: int
+        error_bounds represents the limit on the bounds used for the
+        uncertainty surrounding the recorded values in the CWI database.
 
     Returns
     -------
     thickness_aquired: list
-        A list of Well ID (long) and aquifer thickness values(float).
+        A list of Well ID and aquifer thickness values (float).
     """
     thickness_aquired = []
     requested_values = [
@@ -279,7 +292,7 @@ def storativity_calculations(candidate_wells, thickness_data):
         the target well. This list is sorted by ascending Well ID number.
 
     thickness_aquired: list
-        A list of Well ID (long) and aquifer thickness values(float).
+        A list of Well ID (long) and aquifer thickness values (float).
 
     Returns
     -------
@@ -292,32 +305,24 @@ def storativity_calculations(candidate_wells, thickness_data):
     """
     #Will approximate for more aquifer codes over time
     thickness_storativity_data = []
-    #uses maximum specific storage values from literature
-    if candidate_wells[0][2] == "CJDN" or "CTCG" or "OSTP" or "QUUU" or "CTCW":
-        Ss_max = 6.2*10**-5
-    elif candidate_wells[0][2] == "QBAA" or "QWTA" or "CWOC":
-        Ss_max = 3.1*10**-5
-    elif candidate_wells[0][2] == "OPDC":
-        Ss_max = 2.1*10**-5
-    elif candidate_wells[0][2] == "CSLT":
-        Ss_max = 3.9*10**-4
-    elif candidate_wells[0][2] == "PEVT":
-        Ss_max = 7.8*10**-4
-    else:
-        Ss_max = 1 #come back to approximation
-    #uses minimum specific storage values from literature
-    if candidate_wells[0][2] == "CJDN" or "CTCG" or "OSTP" or "QUUU" or "CTCW":
+    dense_sands = ('CJ**', 'CT**', 'OS**', 'CW**', 'CM**', 'CE**', 'MTPL', \
+                   'KR**', 'PMFL', 'PMHF', 'PMHN')
+    sand_gravel = ('QB**', 'QU**', 'QW**')
+    fissured_rock = ('OP**', 'PA**', 'PC**', 'PE**')
+    
+    if candidate_wells[0][2] in dense_sands:
+        Ss_max = 6.2*10**-5 #dense sands
         Ss_min = 3.9*10**-5
-    elif candidate_wells[0][2] == "QBAA" or "QWTA" or "CWOC":
+    elif candidate_wells[0][2] in sand_gravel:
+        Ss_max = 3.1*10**-5 #dense sands and gravels
         Ss_min = 1.5*10**-5
-    elif candidate_wells[0][2] == "OPDC":
+    elif candidate_wells[0][2] in fissured_rock:
+        Ss_max = 2.1*10**-5 #fizzured rock
         Ss_min = 1*10**-6
-    elif candidate_wells[0][2] == "CSLT":
-        Ss_min = 2.8*10**-4
-    elif candidate_wells[0][2] == "PEVT":
-        Ss_min = 3.9*10**-4
     else:
-        Ss_min = 1 #come back to approximation
+        Ss_max = 6.2*10**-5 #dense sands
+        Ss_min = 3.9*10**-5
+
     for row in thickness_data:
         well_id = row[1]
         b = row[0]
@@ -388,8 +393,8 @@ def data_organization(candidate_wells, pump_log_results, thickness_storativity_d
 
 if __name__ == '__main__':
     # execute only if run as a script
-    find_wells(target_well, radius, error_bounds)
-    pump_log(candidate_wells, error_bounds)
-    aquifer_thickness(candidate_wells, error_bounds)
+#    find_wells(target_well, radius, error_bounds)
+#    pump_log(candidate_wells, error_bounds)
+#    aquifer_thickness(candidate_wells, error_bounds)
     storativity_calculations(candidate_wells, thickness_data)
-    data_organization(candidate_wells, pump_log_results, thickness_storativity_data)
+#    data_organization(candidate_wells, pump_log_results, thickness_storativity_data)
