@@ -6,7 +6,7 @@ Transmissivity.py as a histogram and scatter plot.
 Functions
 ---------
 plot_histogram_transmissivity:
-    Creates a histogram of the natural logorithem of the calculated Transmissivities.
+    Creates a histogram of the calculated Transmissivities (log 10 scale).
     
 plot_spacial_transmissivity:
     Creates a scatterplot where each well is plotted at its UTM coordinates.
@@ -29,7 +29,7 @@ Pump_Durations_Plots:
     to my technical writeup.
     
 Author: Jonny Full
-Version: 7/29/2020
+Version: 8/6/2020
 """
 import numpy as np
 import matplotlib.pyplot as plt

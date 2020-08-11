@@ -1,11 +1,12 @@
 """ This is a driver function that calculates Transmissivity for an area
 of wells in the state of Minnesota.
 
-This function calculates Transmissivity and performs statistical analysis
-of a series of water wells. The program will prompt the user to input a WellID
-number and radial distance (in meters) to act as a boundary condition for the
-query. Transmissivity is being calculated with the Bradbury & Rothschild Method.
-
+This function calculates Transmissivity and Hydraulic Conductivity at every well
+in our system. Interval arithmetic is performed in conjunction with these
+calculations to represent the uncertainties in the specific capacity data.
+The program will prompt the user to input a WellID number and radial distance 
+(in meters) to act as a boundary condition for the query. Transmissivity is 
+being calculated with the Bradbury & Rothschild Method.
 
 Notes
 -----
@@ -17,10 +18,9 @@ Notes
     data tables used by this function on the user's computer.
 
 Author: Jonny Full
-Version: 7/30/2020
+Version: 8/7/2020
 -------------------------------------------------------------------------------
 """
-#COMPLETE
 from Verify import Verify
 from Transmissivity import transmissivity_calculations, conductivity_calculations
 from data_retrieve import find_wells, data_organization, pump_log,\
@@ -58,6 +58,12 @@ t_max = [i[1] for i in transmissivity_calculated]
 k_min = [i[0] for i in conductivity_calculated]
 k_max = [i[1] for i in conductivity_calculated]
 well_id = [i[0][5] for i in confirmed_wells]
+
+"""
+Next step add arcpy code so that the determined values can be put into an
+attribute table."""
+
+
 combine_data = {'Minimum Transmissivity' : t_min, 'Maximum Transmissivity' : t_max,\
                 'Minimum Hydraulic Conductivity' : k_min, 'Maximum Hydralic Conductivity' : k_max,\
                 'Well ID': well_id}

@@ -80,32 +80,25 @@ def opie(STORE):
 
 def storativity_calculations(candidate_wells, thickness_data):
     data_holder = []
-    #uses maximum specific storage values from literature
+    #uses maximum/minimum specific storage values from literature
     if candidate_wells[0][2] == "CJDN" or "CTCG" or "OSTP" or "QUUU" or "CTCW":
         Ss_max = 6.2*10**-5
-    elif candidate_wells[0][2] == "QBAA" or "QWTA" or "CWOC":
-        Ss_max = 3.1*10**-5
-    elif candidate_wells[0][2] == "OPDC":
-        Ss_max = 2.1*10**-5
-    elif candidate_wells[0][2] == "CSLT":
-        Ss_max = 3.9*10**-4
-    elif candidate_wells[0][2] == "PEVT":
-        Ss_max = 7.8*10**-4
-    else:
-        Ss_max = 3.1*10**-5 #come back to approximation
-    #for minimum specific storage values from literature
-    if candidate_wells[0][2] == "CJDN" or "CTCG" or "OSTP" or "QUUU" or "CTCW":
         Ss_min = 3.9*10**-5
     elif candidate_wells[0][2] == "QBAA" or "QWTA" or "CWOC":
+        Ss_max = 3.1*10**-5
         Ss_min = 1.5*10**-5
     elif candidate_wells[0][2] == "OPDC":
+        Ss_max = 2.1*10**-5
         Ss_min = 1*10**-6
     elif candidate_wells[0][2] == "CSLT":
+        Ss_max = 3.9*10**-4
         Ss_min = 2.8*10**-4
     elif candidate_wells[0][2] == "PEVT":
+        Ss_max = 7.8*10**-4
         Ss_min = 3.9*10**-4
     else:
-        Ss_min = 1.5*10**-5 #come back to approximation
+        Ss_max = 3.1*10**-5 #come back to approximation
+        Ss_min = 1.5*10**-5
     for row in thickness_data:
         well_id = row[1]
         b = row[0]
