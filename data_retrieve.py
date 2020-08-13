@@ -261,9 +261,11 @@ def aquifer_thickness(candidate_wells, error_bounds):
         )
     with arcpy.da.SearchCursor(THICKNESS, requested_values, where_clause) as cursor:
         for row in cursor:
+            thickness_min = row[0] - error_bounds
             thickness_values = row[0]
+            thickness_max = row[0] + error_bounds
             wellid = row[1]
-            info = [thickness_values, wellid]
+            info = [thickness_min, thickness_values, thickness_max, wellid]
             thickness_aquired.append(info)
     return thickness_aquired
 
@@ -324,13 +326,15 @@ def storativity_calculations(candidate_wells, thickness_data):
         Ss_min = 3.9*10**-5
 
     for row in thickness_data:
-        well_id = row[1]
-        b = row[0]
+        well_id = row[3]
+        b_min = row[0]
+        b = row[1]
+        b_max = row[2]
         S_max = Ss_max * b
         S_min = Ss_min * b
-        data = [b, S_min, S_max, well_id]
+        data = [b_min, b, b_max, S_min, S_max, well_id]
         thickness_storativity_data.append(data)
-        thickness_storativity_data.sort(key=lambda x: x[3]) #sorts list by Well ID number
+        thickness_storativity_data.sort(key=lambda x: x[5]) #sorts list by Well ID number
     return thickness_storativity_data
 
 
@@ -388,7 +392,7 @@ def data_organization(candidate_wells, pump_log_results, thickness_storativity_d
             if row[5] != item[7]:
                 continue
             for data in thickness_storativity_data: #there are no duplicate well IDs
-                if row[5] == item[7] == data[3]:
+                if row[5] == item[7] == data[5]:
                     value = [row, item, data]
                     confirmed_wells.append(value)
     return confirmed_wells
@@ -396,6 +400,6 @@ def data_organization(candidate_wells, pump_log_results, thickness_storativity_d
 #    # execute only if run as a script
 #    find_wells(target_well, radius, error_bounds)
 #    pump_log(candidate_wells, error_bounds)
-#    aquifer_thickness(candidate_wells, error_bounds)
-#    storativity_calculations(candidate_wells, thickness_data)
+    aquifer_thickness(candidate_wells, error_bounds)
+    storativity_calculations(candidate_wells, thickness_data)
 #    data_organization(candidate_wells, pump_log_results, thickness_storativity_data)

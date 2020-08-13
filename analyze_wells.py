@@ -36,8 +36,8 @@ error_bounds = arcpy.GetParameter(2) #feet
 
 
 target_coords = []
-#target_well, rad, error_bounds = Verify()
-#radius = int(rad) #remove once a full GIS program
+target_well, rad, error_bounds = Verify()
+radius = int(rad) #remove once a full GIS program
 candidate_wells = find_wells(target_well, radius, error_bounds)
 
 for row in candidate_wells:

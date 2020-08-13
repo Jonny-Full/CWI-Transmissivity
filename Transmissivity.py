@@ -66,8 +66,8 @@ def transmissivity_calculations(confirmed_wells):
     """
     transmissivity_calculated = [] #ft^2/day
     Co = 0
-    S_min = [i[2][1] for i in confirmed_wells] #storativity = S temporary constant
-    S_max = [i[2][2] for i in confirmed_wells]
+    S_min = [i[2][3] for i in confirmed_wells] #storativity = S temporary constant
+    S_max = [i[2][4] for i in confirmed_wells]
     Q_min = [i[1][0] for i in confirmed_wells]
     Q = [i[1][1] for i in confirmed_wells]
     Q_max = [i[1][2] for i in confirmed_wells]
@@ -77,7 +77,7 @@ def transmissivity_calculations(confirmed_wells):
     s_max = [i[1][6] for i in confirmed_wells]
     L = [i[0][3] for i in confirmed_wells]
     rw = [i[0][4] for i in confirmed_wells]
-    b = [i[2][0] for i in confirmed_wells]
+    b = [i[2][1] for i in confirmed_wells]
     for i in range(len(Q_min)):
         #sw = [Co * (Q[i]**2)]
         T_max = 1.0
@@ -141,6 +141,7 @@ def conductivity_calculations(confirmed_wells, transmissivity_calculated):
     Hydralic Conductivity can be calculated with the following equation:
         K = T/b
     """
+    b_min = [i[2][0] for i in confirmed_wells]
     b = [i[2][0] for i in confirmed_wells]
     T_min = [i[0] for i in transmissivity_calculated]
     T_guess = [i[0] for i in transmissivity_calculated]
