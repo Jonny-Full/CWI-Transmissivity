@@ -21,15 +21,23 @@ Author: Jonny Full
 Version: 8/7/2020
 -------------------------------------------------------------------------------
 """
+import arcpy
 from Verify import Verify
 from Transmissivity import transmissivity_calculations, conductivity_calculations
 from data_retrieve import find_wells, data_organization, pump_log,\
 aquifer_thickness, storativity_calculations
 from plots import plot_histogram_transmissivity, plot_spacial_transmissivity,\
 plot_spacial_conductivity, plot_spacial_thickness
+
+target_well = arcpy.GetParameter(0)
+radius = arcpy.GetParameter(1) #meters
+error_bounds = arcpy.GetParameter(2) #feet
+
+
+
 target_coords = []
-target_well, rad, error_bounds = Verify()
-radius = int(rad) #meters
+#target_well, rad, error_bounds = Verify()
+#radius = int(rad) #remove once a full GIS program
 candidate_wells = find_wells(target_well, radius, error_bounds)
 
 for row in candidate_wells:
@@ -52,11 +60,13 @@ plot_spacial_transmissivity(target_well, radius, confirmed_wells,\
 plot_spacial_conductivity(target_well, radius, confirmed_wells,\
                           conductivity_calculated, target_coords)
 plot_spacial_thickness(target_well, radius, confirmed_wells, target_coords)
-
+#put items below into their own function
 t_min = [i[0] for i in transmissivity_calculated]
 t_max = [i[1] for i in transmissivity_calculated]
 k_min = [i[0] for i in conductivity_calculated]
 k_max = [i[1] for i in conductivity_calculated]
+utm_e = [i[0][0] for i in confirmed_wells]
+utm_n = [i[0][1] for i in confirmed_wells]
 well_id = [i[0][5] for i in confirmed_wells]
 
 """
@@ -67,6 +77,8 @@ attribute table."""
 combine_data = {'Minimum Transmissivity' : t_min, 'Maximum Transmissivity' : t_max,\
                 'Minimum Hydraulic Conductivity' : k_min, 'Maximum Hydralic Conductivity' : k_max,\
                 'Well ID': well_id}
+
+#arcpy.CreateTable_management(WORKSPACE, 'AquiferData.dbf')
 """
 with open('Foo.csv', 'w') as f:
     for key in combine_data.keys():

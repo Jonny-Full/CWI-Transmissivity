@@ -383,18 +383,19 @@ def data_organization(candidate_wells, pump_log_results, thickness_storativity_d
                       coefficent (float), and Well ID (int)]
     """
     confirmed_wells = []
-    for item in pump_log_results:
-        for row in candidate_wells:
-            for data in thickness_storativity_data:
+    for item in pump_log_results: #there are duplicate well IDs in this table
+        for row in candidate_wells: # there are duplicate well IDs in this table
+            if row[5] != item[7]:
+                continue
+            for data in thickness_storativity_data: #there are no duplicate well IDs
                 if row[5] == item[7] == data[3]:
                     value = [row, item, data]
                     confirmed_wells.append(value)
     return confirmed_wells
 
-if __name__ == '__main__':
-    # execute only if run as a script
+#    # execute only if run as a script
 #    find_wells(target_well, radius, error_bounds)
 #    pump_log(candidate_wells, error_bounds)
 #    aquifer_thickness(candidate_wells, error_bounds)
-    storativity_calculations(candidate_wells, thickness_data)
+#    storativity_calculations(candidate_wells, thickness_data)
 #    data_organization(candidate_wells, pump_log_results, thickness_storativity_data)

@@ -35,10 +35,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 import arcpy
-import seaborn as sns
-from data_location import allwells, CWIPL, THICKNESS
-from matplotlib.ticker import (MultipleLocator, FormatStrFormatter,
-                               AutoMinorLocator)
+from data_location import CWIPL
+from matplotlib.ticker import (MultipleLocator, FormatStrFormatter)
 from matplotlib.backends.backend_pdf import PdfPages
 
 def plot_histogram_transmissivity(transmissivity_calculated):
@@ -145,7 +143,7 @@ def plot_spacial_transmissivity(target_well, radius, confirmed_wells, transmissi
                 norm = LogNorm(vmin= min(T), vmax=max(T)), zorder = 3)
     cbar = plt.colorbar()
     cbar.set_label('log10() of Transmissivity', rotation = 270, labelpad = 15)
-    sns.scatterplot([target_coords[0][0]], [target_coords[0][1]], color='red',\
+    plt.scatter([target_coords[0][0]], [target_coords[0][1]], color='red',\
                     marker = 's', edgecolor = 'k', s = 50,\
                     label = 'Target Well', zorder = 3)
     plt.title(f"Transmissivity for Wells within {radius} meters of Well ID {target_well}")
@@ -219,7 +217,7 @@ def plot_spacial_conductivity(target_well, radius, confirmed_wells,\
                 norm = LogNorm(vmin= min(K), vmax=max(K)), zorder = 3)
     cbar = plt.colorbar()
     cbar.set_label('log10() of Hydraulic Conductivity', rotation = 270, labelpad = 15)
-    sns.scatterplot([target_coords[0][0]], [target_coords[0][1]],\
+    plt.scatter([target_coords[0][0]], [target_coords[0][1]],\
                     color='red', marker = 's', edgecolor = 'k',\
                     s = 50, label = 'Target Well', zorder = 3)
     plt.title(f"Hydraulic Conductivity for Wells within {radius} meters of Well ID {target_well}")
@@ -279,7 +277,7 @@ def plot_spacial_thickness(target_well, radius, confirmed_wells, target_coords):
     plt.scatter(x, y, c = thickness, s = 30, cmap='Greens',zorder = 3)
     cbar = plt.colorbar()
     cbar.set_label('Thickness (ft)', rotation = 270, labelpad = 15)
-    sns.scatterplot([target_coords[0][0]], [target_coords[0][1]],\
+    plt.scatter([target_coords[0][0]], [target_coords[0][1]],\
                     color='red', marker = 's', edgecolor = 'k',\
                     s = 100, label = 'Target Well', zorder = 3)
     plt.title(f"Aquifer Thickness for wells within {radius} meters of Well ID {target_well}")
