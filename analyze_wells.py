@@ -63,32 +63,46 @@ plot_spacial_conductivity(target_well, radius, confirmed_wells,\
 plot_spacial_thickness(target_well, radius, confirmed_wells, target_coords)
 #put items below into their own function
 t_min = [i[0] for i in transmissivity_calculated]
-t_max = [i[1] for i in transmissivity_calculated]
+t_med = [i[1] for i in transmissivity_calculated]
+t_max = [i[2] for i in transmissivity_calculated]
 k_min = [i[0] for i in conductivity_calculated]
-k_max = [i[1] for i in conductivity_calculated]
+k_med = [i[1] for i in conductivity_calculated]
+k_max = [i[2] for i in conductivity_calculated]
 utm_e = [i[0][0] for i in confirmed_wells]
 utm_n = [i[0][1] for i in confirmed_wells]
 well_id = [i[0][5] for i in confirmed_wells]
 
-"""
-Next step add arcpy code so that the determined values can be put into an
-attribute table."""
 
 
 combine_data = {'Minimum Transmissivity' : t_min, 'Maximum Transmissivity' : t_max,\
                 'Minimum Hydraulic Conductivity' : k_min, 'Maximum Hydralic Conductivity' : k_max,\
                 'Well ID': well_id}
 
-arcpy.CreateFeatureclass_management(WORKSPACE, "Calculated_T_&_K", 'POINT')
-arcpy.AddField_management("Calculated_T_&_K", 'UTME', 'DOUBLE')
-arcpy.AddField_management("Calculated_T_&_K", 'UTMN', 'DOUBLE')
-arcpy.AddField_management("Calculated_T_&_K", 'T_MIN', 'DOUBLE')
-arcpy.AddField_management("Calculated_T_&_K", 'T_NORM', 'DOUBLE')
-arcpy.AddField_management("Calculated_T_&_K", 'T_MAX', 'DOUBLE')
-arcpy.AddField_management("Calculated_T_&_K", 'K_MIN', 'DOUBLE')
-arcpy.AddField_management("Calculated_T_&_K", 'K_NORM', 'DOUBLE')
-arcpy.AddField_management("Calculated_T_&_K", 'K_MAX', 'DOUBLE')
-arcpy.AddField_management("Calculated_T_&_K", 'WELLID', 'DOUBLE')
-edit_points = arcpy.InsertCursor('Calculated_T_&_K', '*')
+arcpy.CreateFeatureclass_management(WORKSPACE, "Calculated_Data.shp", 'POINT') #currently not working
+arcpy.AddField_management("Calculated Data.shp", 'UTME', 'DOUBLE')
+arcpy.AddField_management("Calculated Data.shp", 'UTMN', 'DOUBLE')
+arcpy.AddField_management("Calculated Data.shp", 'T_MIN', 'DOUBLE')
+arcpy.AddField_management("Calculated Data.shp", 'T_NORM', 'DOUBLE')
+arcpy.AddField_management("Calculated Data.shp", 'T_MAX', 'DOUBLE')
+arcpy.AddField_management("Calculated Data.shp", 'K_MIN', 'DOUBLE')
+arcpy.AddField_management("Calculated Data.shp", 'K_NORM', 'DOUBLE')
+arcpy.AddField_management("Calculated Data.shp", 'K_MAX', 'DOUBLE')
+arcpy.AddField_management("Calculated Data.shp", 'WELLID', 'LONG')
+edit_points = arcpy.InsertCursor('Calculated Data.shp', '*')
 count = 1
-for enumerate(well_id):
+for row in range(len(well_id)):
+    ID = well_id[row]
+    UTME = utm_e[row]
+    UTMN = utm_n[row]
+    location = arcpy.Point(UTME, UTMN)
+    T_min = t_min[row]
+    T_med = t_med[row]
+    T_max = t_max[row]
+    K_min = k_min[row]
+    K_med = k_med[row]
+    K_max = k_max[row]
+    data = [count, location, T_min, T_med, T_max, K_min, K_med, K_max, ID]
+    edit_points.insertRow(data)
+    count = count + 1
+
+    
