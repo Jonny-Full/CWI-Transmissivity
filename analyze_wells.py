@@ -23,6 +23,7 @@ Version: 8/7/2020
 """
 import arcpy
 from Verify import Verify
+from data_location import WORKSPACE
 from Transmissivity import transmissivity_calculations, conductivity_calculations
 from data_retrieve import find_wells, data_organization, pump_log,\
 aquifer_thickness, storativity_calculations
@@ -78,9 +79,16 @@ combine_data = {'Minimum Transmissivity' : t_min, 'Maximum Transmissivity' : t_m
                 'Minimum Hydraulic Conductivity' : k_min, 'Maximum Hydralic Conductivity' : k_max,\
                 'Well ID': well_id}
 
-#arcpy.CreateTable_management(WORKSPACE, 'AquiferData.dbf')
-"""
-with open('Foo.csv', 'w') as f:
-    for key in combine_data.keys():
-        f.write("%s,%s\n"%(key,combine_data[key]))
-"""
+arcpy.CreateFeatureclass_management(WORKSPACE, "Calculated_T_&_K", 'POINT')
+arcpy.AddField_management("Calculated_T_&_K", 'UTME', 'DOUBLE')
+arcpy.AddField_management("Calculated_T_&_K", 'UTMN', 'DOUBLE')
+arcpy.AddField_management("Calculated_T_&_K", 'T_MIN', 'DOUBLE')
+arcpy.AddField_management("Calculated_T_&_K", 'T_NORM', 'DOUBLE')
+arcpy.AddField_management("Calculated_T_&_K", 'T_MAX', 'DOUBLE')
+arcpy.AddField_management("Calculated_T_&_K", 'K_MIN', 'DOUBLE')
+arcpy.AddField_management("Calculated_T_&_K", 'K_NORM', 'DOUBLE')
+arcpy.AddField_management("Calculated_T_&_K", 'K_MAX', 'DOUBLE')
+arcpy.AddField_management("Calculated_T_&_K", 'WELLID', 'DOUBLE')
+edit_points = arcpy.InsertCursor('Calculated_T_&_K', '*')
+count = 1
+for enumerate(well_id):
