@@ -18,7 +18,7 @@ Notes
     data tables used by this function on the user's computer.
 
 Author: Jonny Full
-Version: 8/7/2020
+Version: 8/18/2020
 -------------------------------------------------------------------------------
 """
 import arcpy
@@ -30,6 +30,11 @@ aquifer_thickness, storativity_calculations
 from plots import plot_histogram_transmissivity, plot_spacial_transmissivity,\
 plot_spacial_conductivity, plot_spacial_thickness
 
+"""
+Analyze Wells should be used for GIS based work/tests.
+Use runme.py for work in Spyder.
+"""
+
 target_well = arcpy.GetParameter(0)
 radius = arcpy.GetParameter(1) #meters
 error_bounds = arcpy.GetParameter(2) #feet
@@ -37,8 +42,8 @@ error_bounds = arcpy.GetParameter(2) #feet
 
 
 target_coords = []
-target_well, rad, error_bounds = Verify()
-radius = int(rad) #remove once a full GIS program
+#target_well, rad, error_bounds = Verify()
+#radius = int(rad) #remove once a full GIS program
 candidate_wells = find_wells(target_well, radius, error_bounds)
 
 for row in candidate_wells:
@@ -54,13 +59,17 @@ thickness_data = aquifer_thickness(candidate_wells, error_bounds)
 thickness_storativity_data = storativity_calculations(candidate_wells, thickness_data)
 confirmed_wells = data_organization(candidate_wells, pump_log_results, thickness_storativity_data)
 transmissivity_calculated = transmissivity_calculations(confirmed_wells)
-plot_histogram_transmissivity(transmissivity_calculated)
 conductivity_calculated = conductivity_calculations(confirmed_wells, transmissivity_calculated)
-plot_spacial_transmissivity(target_well, radius, confirmed_wells,\
-                            transmissivity_calculated, target_coords)
-plot_spacial_conductivity(target_well, radius, confirmed_wells,\
-                          conductivity_calculated, target_coords)
-plot_spacial_thickness(target_well, radius, confirmed_wells, target_coords)
+"""
+
+#plot_histogram_transmissivity(transmissivity_calculated)
+#plot_spacial_transmissivity(target_well, radius, confirmed_wells,\
+#                            transmissivity_calculated, target_coords)
+#plot_spacial_conductivity(target_well, radius, confirmed_wells,\
+#                          conductivity_calculated, target_coords)
+#plot_spacial_thickness(target_well, radius, confirmed_wells, target_coords)
+"""
+
 #put items below into their own function
 t_min = [i[0] for i in transmissivity_calculated]
 t_med = [i[1] for i in transmissivity_calculated]
@@ -77,33 +86,8 @@ well_id = [i[0][5] for i in confirmed_wells]
 combine_data = {'Minimum Transmissivity' : t_min, 'Maximum Transmissivity' : t_max,\
                 'Minimum Hydraulic Conductivity' : k_min, 'Maximum Hydralic Conductivity' : k_max,\
                 'Well ID': well_id}
-if "calculate_data" in WORKSPACE == False:
-    arcpy.CreateFeatureclass_management(WORKSPACE, "calculate_data", 'POINT')
-data_table = WORKSPACE + r'\calculate_data'
-arcpy.AddField_management(data_table, 'UTME', 'DOUBLE') 
-arcpy.AddField_management(data_table, 'UTMN', 'DOUBLE')
-arcpy.AddField_management(data_table, 'T_MIN', 'DOUBLE')
-arcpy.AddField_management(data_table, 'T_NORM', 'DOUBLE')
-arcpy.AddField_management(data_table, 'T_MAX', 'DOUBLE')
-arcpy.AddField_management(data_table, 'K_MIN', 'DOUBLE')
-arcpy.AddField_management(data_table, 'K_NORM', 'DOUBLE')
-arcpy.AddField_management(data_table, 'K_MAX', 'DOUBLE')
-arcpy.AddField_management(data_table, 'WELLID', 'LONG')
-edit_points = arcpy.InsertCursor(data_table, '*')
-count = 1
-for row in range(len(well_id)): #data is not being appended. Issue with Object ID I think
-    ID = well_id[row]
-    UTME = utm_e[row]
-    UTMN = utm_n[row]
-    location = arcpy.Point(UTME, UTMN)
-    T_min = t_min[row]
-    T_med = t_med[row]
-    T_max = t_max[row]
-    K_min = k_min[row]
-    K_med = k_med[row]
-    K_max = k_max[row]
-    data = [count, location, T_min, T_med, T_max, K_min, K_med, K_max, ID]
-    edit_points.insertRow(data)
-    count = count + 1
+
+
+
 
     

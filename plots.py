@@ -85,9 +85,9 @@ def plot_spacial_transmissivity(target_well, radius, confirmed_wells, transmissi
     
     Parameters
     ----------
-    target_well: string
-        The RELATEID of the well input by the user in Verify.
-        Example : '0000123456'
+    target_well: long
+        The WELLID of the well input by the user in Verify.
+        Example : 123456
         
     RADIUS: int (meters)
         RADIUS represents a boundry condition for the scope of analysis. 

@@ -265,6 +265,9 @@ def aquifer_thickness(candidate_wells, error_bounds):
             thickness_values = row[0]
             thickness_max = row[0] + error_bounds
             wellid = row[1]
+            if thickness_min <= 0 or thickness_values <= 0:
+                thickness_min = 1
+                thickness_values = 1
             info = [thickness_min, thickness_values, thickness_max, wellid]
             thickness_aquired.append(info)
     return thickness_aquired
@@ -400,6 +403,6 @@ def data_organization(candidate_wells, pump_log_results, thickness_storativity_d
 #    # execute only if run as a script
 #    find_wells(target_well, radius, error_bounds)
 #    pump_log(candidate_wells, error_bounds)
-    aquifer_thickness(candidate_wells, error_bounds)
-    storativity_calculations(candidate_wells, thickness_data)
+#  aquifer_thickness(candidate_wells, error_bounds)
+#    storativity_calculations(candidate_wells, thickness_data)
 #    data_organization(candidate_wells, pump_log_results, thickness_storativity_data)
