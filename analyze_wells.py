@@ -78,17 +78,17 @@ combine_data = {'Minimum Transmissivity' : t_min, 'Maximum Transmissivity' : t_m
                 'Minimum Hydraulic Conductivity' : k_min, 'Maximum Hydralic Conductivity' : k_max,\
                 'Well ID': well_id}
 
-arcpy.CreateFeatureclass_management(WORKSPACE, "Calculated_Data.shp", 'POINT') #currently not working
-arcpy.AddField_management("Calculated Data.shp", 'UTME', 'DOUBLE')
-arcpy.AddField_management("Calculated Data.shp", 'UTMN', 'DOUBLE')
-arcpy.AddField_management("Calculated Data.shp", 'T_MIN', 'DOUBLE')
-arcpy.AddField_management("Calculated Data.shp", 'T_NORM', 'DOUBLE')
-arcpy.AddField_management("Calculated Data.shp", 'T_MAX', 'DOUBLE')
-arcpy.AddField_management("Calculated Data.shp", 'K_MIN', 'DOUBLE')
-arcpy.AddField_management("Calculated Data.shp", 'K_NORM', 'DOUBLE')
-arcpy.AddField_management("Calculated Data.shp", 'K_MAX', 'DOUBLE')
-arcpy.AddField_management("Calculated Data.shp", 'WELLID', 'LONG')
-edit_points = arcpy.InsertCursor('Calculated Data.shp', '*')
+arcpy.CreateFeatureclass_management(WORKSPACE, "calculate_data", 'POINT') 
+arcpy.AddField_management("calculate_data", 'UTME', 'DOUBLE') #currently not working (dataset not supported)
+arcpy.AddField_management("calculate_data", 'UTMN', 'DOUBLE')
+arcpy.AddField_management("calculate_data", 'T_MIN', 'DOUBLE')
+arcpy.AddField_management("calculate_data", 'T_NORM', 'DOUBLE')
+arcpy.AddField_management("calculate_data", 'T_MAX', 'DOUBLE')
+arcpy.AddField_management("calculate_data", 'K_MIN', 'DOUBLE')
+arcpy.AddField_management("calculate_data", 'K_NORM', 'DOUBLE')
+arcpy.AddField_management("calculate_data", 'K_MAX', 'DOUBLE')
+arcpy.AddField_management("calculate_data", 'WELLID', 'LONG')
+edit_points = arcpy.InsertCursor('calculate_data', '*')
 count = 1
 for row in range(len(well_id)):
     ID = well_id[row]
