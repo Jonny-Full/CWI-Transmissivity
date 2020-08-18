@@ -77,20 +77,21 @@ well_id = [i[0][5] for i in confirmed_wells]
 combine_data = {'Minimum Transmissivity' : t_min, 'Maximum Transmissivity' : t_max,\
                 'Minimum Hydraulic Conductivity' : k_min, 'Maximum Hydralic Conductivity' : k_max,\
                 'Well ID': well_id}
-
-arcpy.CreateFeatureclass_management(WORKSPACE, "calculate_data", 'POINT') 
-arcpy.AddField_management("calculate_data", 'UTME', 'DOUBLE') #currently not working (dataset not supported)
-arcpy.AddField_management("calculate_data", 'UTMN', 'DOUBLE')
-arcpy.AddField_management("calculate_data", 'T_MIN', 'DOUBLE')
-arcpy.AddField_management("calculate_data", 'T_NORM', 'DOUBLE')
-arcpy.AddField_management("calculate_data", 'T_MAX', 'DOUBLE')
-arcpy.AddField_management("calculate_data", 'K_MIN', 'DOUBLE')
-arcpy.AddField_management("calculate_data", 'K_NORM', 'DOUBLE')
-arcpy.AddField_management("calculate_data", 'K_MAX', 'DOUBLE')
-arcpy.AddField_management("calculate_data", 'WELLID', 'LONG')
-edit_points = arcpy.InsertCursor('calculate_data', '*')
+if "calculate_data" in WORKSPACE == False:
+    arcpy.CreateFeatureclass_management(WORKSPACE, "calculate_data", 'POINT')
+data_table = WORKSPACE + r'\calculate_data'
+arcpy.AddField_management(data_table, 'UTME', 'DOUBLE') 
+arcpy.AddField_management(data_table, 'UTMN', 'DOUBLE')
+arcpy.AddField_management(data_table, 'T_MIN', 'DOUBLE')
+arcpy.AddField_management(data_table, 'T_NORM', 'DOUBLE')
+arcpy.AddField_management(data_table, 'T_MAX', 'DOUBLE')
+arcpy.AddField_management(data_table, 'K_MIN', 'DOUBLE')
+arcpy.AddField_management(data_table, 'K_NORM', 'DOUBLE')
+arcpy.AddField_management(data_table, 'K_MAX', 'DOUBLE')
+arcpy.AddField_management(data_table, 'WELLID', 'LONG')
+edit_points = arcpy.InsertCursor(data_table, '*')
 count = 1
-for row in range(len(well_id)):
+for row in range(len(well_id)): #data is not being appended. Issue with Object ID I think
     ID = well_id[row]
     UTME = utm_e[row]
     UTMN = utm_n[row]
