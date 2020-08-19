@@ -22,6 +22,8 @@ Version: 8/18/2020
 -------------------------------------------------------------------------------
 """
 import arcpy
+import numpy as np
+import pandas as pd
 from Verify import Verify
 from data_location import WORKSPACE
 from Transmissivity import transmissivity_calculations, conductivity_calculations
@@ -42,8 +44,8 @@ error_bounds = arcpy.GetParameter(2) #feet
 
 
 target_coords = []
-#target_well, rad, error_bounds = Verify()
-#radius = int(rad) #remove once a full GIS program
+target_well, rad, error_bounds = Verify()
+radius = int(rad) #remove once a full GIS program
 candidate_wells = find_wells(target_well, radius, error_bounds)
 
 for row in candidate_wells:
@@ -60,8 +62,17 @@ thickness_storativity_data = storativity_calculations(candidate_wells, thickness
 confirmed_wells = data_organization(candidate_wells, pump_log_results, thickness_storativity_data)
 transmissivity_calculated = transmissivity_calculations(confirmed_wells)
 conductivity_calculated = conductivity_calculations(confirmed_wells, transmissivity_calculated)
-"""
+transmissivity_calculated = np.array(transmissivity_calculated)
+conductivity_calculated = np.array(conductivity_calculated)
+joined_data = np.concatenate((transmissivity_calculated, conductivity_calculated), axis = 1)
+my_df = pd.DataFrame(joined_data)
+my_df.to_csv('Test.csv', index = False, header = False)
+#for row in transmissivity_calculated:
+#    for item in conductivity_calculated:
+#        data = [row, item]
+#        joined_data.append(data)
 
+"""
 #plot_histogram_transmissivity(transmissivity_calculated)
 #plot_spacial_transmissivity(target_well, radius, confirmed_wells,\
 #                            transmissivity_calculated, target_coords)
@@ -70,22 +81,10 @@ conductivity_calculated = conductivity_calculations(confirmed_wells, transmissiv
 #plot_spacial_thickness(target_well, radius, confirmed_wells, target_coords)
 """
 
-#put items below into their own function
-t_min = [i[0] for i in transmissivity_calculated]
-t_med = [i[1] for i in transmissivity_calculated]
-t_max = [i[2] for i in transmissivity_calculated]
-k_min = [i[0] for i in conductivity_calculated]
-k_med = [i[1] for i in conductivity_calculated]
-k_max = [i[2] for i in conductivity_calculated]
-utm_e = [i[0][0] for i in confirmed_wells]
-utm_n = [i[0][1] for i in confirmed_wells]
-well_id = [i[0][5] for i in confirmed_wells]
 
 
 
-combine_data = {'Minimum Transmissivity' : t_min, 'Maximum Transmissivity' : t_max,\
-                'Minimum Hydraulic Conductivity' : k_min, 'Maximum Hydralic Conductivity' : k_max,\
-                'Well ID': well_id}
+
 
 
 
