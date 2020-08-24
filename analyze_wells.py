@@ -41,9 +41,6 @@ target_well = arcpy.GetParameter(0)
 radius = arcpy.GetParameter(1) #meters
 error_bounds = arcpy.GetParameter(2) #feet
 feature_class_name = arcpy.GetParameter(3)
-
-
-
 target_coords = []
 #target_well, rad, error_bounds = Verify()
 #radius = int(rad) #remove once a full GIS program
@@ -78,14 +75,12 @@ my_df.to_csv('Test.csv', index = False, header = header_list)
 
 if feature_class_name is not None:
     # Delete the shape file if it already exists.
-    shapefile = WORKSPACE + r"\feature_class_name"
+    shapefile = WORKSPACE + r"\feature_class_TEST" #Cannot figure out how to name items
     if arcpy.Exists(shapefile):
         arcpy.Delete_management(shapefile)
 
-arcpy.management.XYTableToPoint('Test.csv', shapefile, 'UTME', 'UTMN','',\
-                                arcpy.SpatialReference(26915))
-
-
+arcpy.management.XYTableToPoint('Test.csv', shapefile, 'UTME', 'UTMN',\
+                                coordinate_system = arcpy.SpatialReference(26915)) # NAD 83 UTM zone 15N (EPSG:26915).
 """
 #plot_histogram_transmissivity(transmissivity_calculated)
 #plot_spacial_transmissivity(target_well, radius, confirmed_wells,\
