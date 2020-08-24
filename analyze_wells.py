@@ -40,12 +40,14 @@ Use runme.py for work in Spyder.
 target_well = arcpy.GetParameter(0)
 radius = arcpy.GetParameter(1) #meters
 error_bounds = arcpy.GetParameter(2) #feet
+feature_class_name = arcpy.GetParameter(3)
 
 
 
 target_coords = []
-target_well, rad, error_bounds = Verify()
-radius = int(rad) #remove once a full GIS program
+#target_well, rad, error_bounds = Verify()
+#radius = int(rad) #remove once a full GIS program
+#feature_class_name = 'Testing'
 candidate_wells = find_wells(target_well, radius, error_bounds)
 
 for row in candidate_wells:
@@ -62,15 +64,27 @@ thickness_storativity_data = storativity_calculations(candidate_wells, thickness
 confirmed_wells = data_organization(candidate_wells, pump_log_results, thickness_storativity_data)
 transmissivity_calculated = transmissivity_calculations(confirmed_wells)
 conductivity_calculated = conductivity_calculations(confirmed_wells, transmissivity_calculated)
+utm_e = [i[0][0] for i  in confirmed_wells]
+utm_n = [i[0][1] for i in confirmed_wells]
+np.set_printoptions(suppress=True) #removes scientific notation
+location = np.array([utm_e, utm_n])
+location = location.transpose()
 transmissivity_calculated = np.array(transmissivity_calculated)
 conductivity_calculated = np.array(conductivity_calculated)
-joined_data = np.concatenate((transmissivity_calculated, conductivity_calculated), axis = 1)
+joined_data = np.concatenate((location, transmissivity_calculated, conductivity_calculated), axis = 1)
 my_df = pd.DataFrame(joined_data)
-my_df.to_csv('Test.csv', index = False, header = False)
-#for row in transmissivity_calculated:
-#    for item in conductivity_calculated:
-#        data = [row, item]
-#        joined_data.append(data)
+header_list = ['UTME', 'UTMN', 'T_min', 'T_raw', 'T_max', 'K_min', 'K_raw', 'K_max', 'Well ID']
+my_df.to_csv('Test.csv', index = False, header = header_list)
+
+if feature_class_name is not None:
+    # Delete the shape file if it already exists.
+    shapefile = WORKSPACE + r"\feature_class_name"
+    if arcpy.Exists(shapefile):
+        arcpy.Delete_management(shapefile)
+
+arcpy.management.XYTableToPoint('Test.csv', shapefile, 'UTME', 'UTMN','',\
+                                arcpy.SpatialReference(26915))
+
 
 """
 #plot_histogram_transmissivity(transmissivity_calculated)
