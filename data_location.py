@@ -25,9 +25,10 @@ By: Jonny Full
 Version: 6/26/2020
 -------------------------------------------------------------------------------
 """
-WORKSPACE=r"C:\Users\JonnyA\Desktop\Research\Test\water_well_information.gdb"    
-allwells = WORKSPACE + r'\allwells'
-CWIPL = WORKSPACE + r'\C5PL'
+WORKSPACE = r"C:\Users\JonnyA\Documents\ArcGIS\Projects\CWI_Current_5-19-20\CWI_Current_5-19-20.gdb"
+CWI_DATA = r"C:\Users\JonnyA\Desktop\Research\Test\water_well_information.gdb"    
+allwells = CWI_DATA + r'\allwells'
+CWIPL = CWI_DATA + r'\C5PL'
 loc = r"C:\Users\JonnyA\Desktop\Research\Current Work\PumpingTestData.xlsx"
 THICKNESS = r'C:\Users\JonnyA\Desktop\Research\Test\CWI_hydro.dbf'
 
