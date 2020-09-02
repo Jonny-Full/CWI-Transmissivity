@@ -14,8 +14,11 @@ Version: 8/28/2020
 import arcpy
 import numpy as np
 import pandas as pd
+#from analyze_wells import transmissivity_calculated, conductivity_calculated,\
+#confirmed_wells, feature_class_name
 
-def calculated_data_to_csv(transmissivity_calculated, conductivity_calculated,\
+
+def calculated_data_to_csv(transmissivity_calculated, conductivity_calculated,
                            confirmed_wells, feature_class_name):
     utm_e = [i[0][0] for i  in confirmed_wells]
     utm_n = [i[0][1] for i in confirmed_wells]
@@ -29,4 +32,42 @@ def calculated_data_to_csv(transmissivity_calculated, conductivity_calculated,\
     header_list = ['UTME', 'UTMN', 'T_min', 'T_raw', 'T_max', 'K_min', 'K_raw', 'K_max', 'Well ID']
     raw_csv_name = f"{feature_class_name}.csv"
     my_df.to_csv(raw_csv_name, index = False, header = header_list)
-    return raw_csv_name
+    return my_df, raw_csv_name
+
+def calculated_data_statistics_csv(my_df):
+    updated_df = my_df.drop([0, 1, 8], axis = 1) #removes Well ID and UTMs from dataframe
+    raw_csv_name_stats = f"{feature_class_name}_statistics.csv"
+    header_list = ["T_min", 
+                   "T_raw", 
+                   "T_max", 
+                   "K_min", 
+                   "K_raw", 
+                   "K_max"]
+    index_list = {0:'Count', 
+                  1:'Mean', 
+                  2:'Standard Deviation', 
+                  3:'Minimum',
+                  4:'25%', 
+                  5:'Median', 
+                  6:'75%', 
+                  7:'Maximum', 
+                  8:'Logrithmic Mean',
+                  9:'Logrithmic Standard Deviation'}
+    log_mean = np.log10(updated_df.mean())
+    log_std = np.log10(updated_df.std())
+    useful_values = updated_df.describe()
+    useful_values = useful_values.append(log_mean, ignore_index = True)
+    useful_values = useful_values.append(log_std, ignore_index = True)
+    useful_values = useful_values.rename(index = index_list)
+    useful_values.to_csv(raw_csv_name_stats, header = header_list)
+    
+    return useful_values
+    
+#if __name__ == '__main__':
+#    my_df, raw_csv_name = calculated_data_to_csv(transmissivity_calculated, 
+#                                                 conductivity_calculated, 
+#                                                 confirmed_wells, 
+#                                                 feature_class_name)
+#                           
+#    useful_values = calculated_data_statistics_csv(my_df)
+#    

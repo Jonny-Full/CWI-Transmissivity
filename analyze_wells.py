@@ -29,7 +29,7 @@ from data_location import CWI_DATA
 from Transmissivity import transmissivity_calculations, conductivity_calculations
 from data_retrieve import find_wells, data_organization, pump_log,\
 aquifer_thickness, storativity_calculations
-from data_to_csv import calculated_data_to_csv
+from data_to_csv import calculated_data_to_csv, calculated_data_statistics_csv
 from plots import plot_histogram_transmissivity, plot_spacial_transmissivity,\
 plot_spacial_conductivity, plot_spacial_thickness
 
@@ -44,9 +44,9 @@ error_bounds = arcpy.GetParameter(2) #feet
 feature_class_name = arcpy.GetParameterAsText(3)
 WORKSPACE = arcpy.GetParameterAsText(4)
 target_coords = []
-#target_well, rad, error_bounds = Verify()
-#radius = int(rad) #remove once a full GIS program
-#feature_class_name = 'Testing'
+target_well, rad, error_bounds = Verify()
+radius = int(rad) #remove once a full GIS program
+feature_class_name = 'Testing'
 candidate_wells = find_wells(target_well, radius, error_bounds)
 
 for row in candidate_wells:
@@ -65,6 +65,7 @@ transmissivity_calculated = transmissivity_calculations(confirmed_wells)
 conductivity_calculated = conductivity_calculations(confirmed_wells, transmissivity_calculated)
 my_df, raw_csv_name = calculated_data_to_csv(transmissivity_calculated, conductivity_calculated,\
                            confirmed_wells, feature_class_name)
+calculated_data_statistics_csv(my_df, feature_class_name)
 
 if feature_class_name is not None:
     # Delete the shape file if it already exists.
