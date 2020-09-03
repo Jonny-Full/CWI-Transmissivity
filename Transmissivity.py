@@ -5,9 +5,11 @@
 Functions
 ---------
 
-    calc: Calculates the Transmissivity for each entry in confirmed_wells
+    transmissivity_calculations: Calculates the Transmissivity for each entry 
+    in confirmed_wells
 
-    Conduct: Calculates the Hydralic Conductivity from transmissivity_calculated
+    conductivity_calculations: Calculates the Hydralic Conductivity from 
+    transmissivity_calculated
 
 Notes
 -----
@@ -156,7 +158,3 @@ def conductivity_calculations(confirmed_wells, transmissivity_calculated):
         K_values = [K_min, K_guess, K_max, well_id_data]
         hydro_cond.append(K_values)
     return hydro_cond
-
-#if __name__ == '__main__':
-#    transmissivity_calculations(confirmed_wells)
-#    conductivity_calculations(confirmed_wells, transmissivity_calculated)

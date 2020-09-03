@@ -39,6 +39,10 @@ from data_location import CWIPL
 from matplotlib.ticker import (MultipleLocator, FormatStrFormatter)
 from matplotlib.backends.backend_pdf import PdfPages
 
+"""
+PROJECT FOR THE FALL
+"""
+
 def plot_histogram_transmissivity(transmissivity_calculated):
     """Plots the natural log of the transmissivity values
     

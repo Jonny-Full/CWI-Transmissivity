@@ -18,12 +18,10 @@ Notes
     data tables used by this function on the user's computer.
 
 Author: Jonny Full
-Version: 8/18/2020
+Version: 9/3/2020
 -------------------------------------------------------------------------------
 """
 import arcpy
-import numpy as np
-import pandas as pd
 from Verify import Verify
 from data_location import CWI_DATA
 from Transmissivity import transmissivity_calculations, conductivity_calculations
@@ -33,20 +31,14 @@ from data_to_csv import calculated_data_to_csv, calculated_data_statistics_csv
 from plots import plot_histogram_transmissivity, plot_spacial_transmissivity,\
 plot_spacial_conductivity, plot_spacial_thickness
 
-"""
-Analyze Wells should be used for GIS based work/tests.
-Use runme.py for work in Spyder.
-"""
-
+#add CWI data variable
 target_well = arcpy.GetParameter(0)
 radius = arcpy.GetParameter(1) #meters
 error_bounds = arcpy.GetParameter(2) #feet
 feature_class_name = arcpy.GetParameterAsText(3)
 WORKSPACE = arcpy.GetParameterAsText(4)
 target_coords = []
-target_well, rad, error_bounds = Verify()
-radius = int(rad) #remove once a full GIS program
-feature_class_name = 'Testing'
+#target_well, rad, error_bounds = Verify()
 candidate_wells = find_wells(target_well, radius, error_bounds)
 
 for row in candidate_wells:
@@ -73,20 +65,13 @@ if feature_class_name is not None:
     if arcpy.Exists(shapefile):
         arcpy.Delete_management(shapefile)
 else:
-    shapefile = WORKSPACE + r"\calculated_well_data" #currently broken
+    shapefile = WORKSPACE + r"\calculated_well_data"
     if arcpy.Exists(shapefile):
         arcpy.Delete_management(shapefile)
-print(shapefile)
+# NAD 83 UTM zone 15N (EPSG:26915).
 arcpy.management.XYTableToPoint(raw_csv_name, shapefile, 'UTME', 'UTMN',\
-                                coordinate_system = arcpy.SpatialReference(26915)) # NAD 83 UTM zone 15N (EPSG:26915).
-"""
-#plot_histogram_transmissivity(transmissivity_calculated)
-#plot_spacial_transmissivity(target_well, radius, confirmed_wells,\
-#                            transmissivity_calculated, target_coords)
-#plot_spacial_conductivity(target_well, radius, confirmed_wells,\
-#                          conductivity_calculated, target_coords)
-#plot_spacial_thickness(target_well, radius, confirmed_wells, target_coords)
-"""
+                                coordinate_system = arcpy.SpatialReference(26915)) 
+
 
 
 

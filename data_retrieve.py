@@ -399,10 +399,3 @@ def data_organization(candidate_wells, pump_log_results, thickness_storativity_d
                     value = [row, item, data]
                     confirmed_wells.append(value)
     return confirmed_wells
-
-#    # execute only if run as a script
-#    find_wells(target_well, radius, error_bounds)
-#    pump_log(candidate_wells, error_bounds)
-#  aquifer_thickness(candidate_wells, error_bounds)
-#    storativity_calculations(candidate_wells, thickness_data)
-#    data_organization(candidate_wells, pump_log_results, thickness_storativity_data)
