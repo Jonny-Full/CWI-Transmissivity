@@ -45,6 +45,7 @@ Version: 7/30/2020
 -------------------------------------------------------------------------------
 """
 import math
+from scipy.special import lambertw
 
 def transmissivity_calculations(confirmed_wells):
     """Computes the Transmissivity for every well in confirmed_wells
@@ -67,7 +68,6 @@ def transmissivity_calculations(confirmed_wells):
         each row in confirmed_wells.
     """
     transmissivity_calculated = [] #ft^2/day
-    Co = 0
     S_min = [i[2][3] for i in confirmed_wells] #storativity = S temporary constant
     S_max = [i[2][4] for i in confirmed_wells]
     Q_min = [i[1][0] for i in confirmed_wells]
@@ -81,10 +81,8 @@ def transmissivity_calculations(confirmed_wells):
     rw = [i[0][4] for i in confirmed_wells]
     b = [i[2][1] for i in confirmed_wells]
     for i in range(len(Q_min)):
-        T_max = 1.0
-        T = 1.0
-        T_min = 1.0
-        LastValue = 0
+      
+        
         if L[i] > 0 and rw[i] > 0:
             Lb = L[i]/b[i]
             """
@@ -100,22 +98,23 @@ def transmissivity_calculations(confirmed_wells):
             sp = ((1-Lb)/Lb)*(math.log(b[i]/rw[i])-G)
         else:
             sp = 0
-        while (T_min - LastValue) >= 0.001:
-            LastValue = T_min
-            T_min = (Q_min[i]/(4*math.pi*(s_max[i])))*\
-            (math.log((2.25*T_min* t[i])/((rw[i]**2) * S_max[i])) + (2*sp))
         
-        LastValue = 0
-        while (T - LastValue) >= 0.001:
-            LastValue = T
-            T = (Q[i]/(4*math.pi*(s[i])))*\
-            (math.log((2.25*T* t[i])/((rw[i]**2) * S_max[i])) + (2*sp))
+        data = (-16*math.pi/9)*(1/math.exp(2*sp))*(s_min[i]*(rw[i]**2)*S_min[i]\
+                /(Q_min[i]*t[i]))
+        W_min = lambertw(data,-1)
+        T_max = -(Q_min[i]/(4*math.pi*(s_min[i])))*W_min
         
-        LastValue = 0 
-        while (T_max - LastValue) >= 0.001:
-            LastValue = T_max
-            T_max = (Q_max[i]/(4*math.pi*(s_min[i])))*\
-            (math.log((2.25*T_max* t[i])/((rw[i]**2) * S_min[i])) + (2*sp))
+
+        data = (-16*math.pi/9)*(1/math.exp(2*sp))*(s[i]*(rw[i]**2)*\
+                S_max[i]/(Q[i]*t[i]))
+        W_raw = lambertw(data,-1)
+        T = -(Q[i]/(4*math.pi*(s[i])))*W_raw
+            
+        data = (-16*math.pi/9)*(1/math.exp(2*sp))*(s_max[i]*(rw[i]**2)*\
+                S_max[i]/(Q_max[i]*t[i]))
+        W_max = lambertw(data,-1)
+        T_min = -(Q_max[i]/(4*math.pi*(s_max[i])))*W_max
+        
         T_range = [T_min, T, T_max]
         transmissivity_calculated.append(T_range)
     return transmissivity_calculated #break into two lists?
@@ -146,14 +145,14 @@ def conductivity_calculations(confirmed_wells, transmissivity_calculated):
     b = [i[2][1] for i in confirmed_wells]
     b_max = [i[2][2] for i in confirmed_wells]
     T_min = [i[0] for i in transmissivity_calculated]
-    T_guess = [i[1] for i in transmissivity_calculated]
+    T = [i[1] for i in transmissivity_calculated]
     T_max = [i[2] for i in transmissivity_calculated]
     well_id = [i[0][5] for i in confirmed_wells]
     hydro_cond = []
     for i in range(len(transmissivity_calculated)):
         well_id_data = well_id[i]
         K_min = T_min[i] / b_max[i]
-        K_guess = T_guess[i] / b[i]
+        K_guess = T[i] / b[i]
         K_max = T_max[i] / b_min[i]
         K_values = [K_min, K_guess, K_max, well_id_data]
         hydro_cond.append(K_values)

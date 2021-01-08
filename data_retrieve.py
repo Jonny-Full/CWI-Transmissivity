@@ -266,8 +266,7 @@ def aquifer_thickness(candidate_wells, error_bounds):
             thickness_max = row[0] + error_bounds
             wellid = row[1]
             if thickness_min <= 0 or thickness_values <= 0:
-                thickness_min = 1
-                thickness_values = 1
+                continue
             info = [thickness_min, thickness_values, thickness_max, wellid]
             thickness_aquired.append(info)
     return thickness_aquired

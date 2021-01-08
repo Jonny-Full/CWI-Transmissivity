@@ -38,7 +38,8 @@ error_bounds = arcpy.GetParameter(2) #feet
 feature_class_name = arcpy.GetParameterAsText(3)
 WORKSPACE = arcpy.GetParameterAsText(4)
 target_coords = []
-#target_well, rad, error_bounds = Verify()
+
+target_well, radius, error_bounds = Verify() #Use when not in ArcGIS
 candidate_wells = find_wells(target_well, radius, error_bounds)
 
 for row in candidate_wells:
@@ -49,12 +50,15 @@ for row in candidate_wells:
         data = [utm_e, utm_n, well_id]
         target_coords.append(data)
 
+#Determines values for each verfied well
 pump_log_results = pump_log(candidate_wells, error_bounds)
 thickness_data = aquifer_thickness(candidate_wells, error_bounds)
 thickness_storativity_data = storativity_calculations(candidate_wells, thickness_data)
 confirmed_wells = data_organization(candidate_wells, pump_log_results, thickness_storativity_data)
 transmissivity_calculated = transmissivity_calculations(confirmed_wells)
 conductivity_calculated = conductivity_calculations(confirmed_wells, transmissivity_calculated)
+
+feature_class_name = "TEST" #Remove later
 my_df, raw_csv_name = calculated_data_to_csv(transmissivity_calculated, conductivity_calculated,\
                            confirmed_wells, feature_class_name)
 calculated_data_statistics_csv(my_df, feature_class_name)
@@ -69,8 +73,8 @@ else:
     if arcpy.Exists(shapefile):
         arcpy.Delete_management(shapefile)
 # NAD 83 UTM zone 15N (EPSG:26915).
-arcpy.management.XYTableToPoint(raw_csv_name, shapefile, 'UTME', 'UTMN',\
-                                coordinate_system = arcpy.SpatialReference(26915)) 
+#arcpy.management.XYTableToPoint(raw_csv_name, shapefile, 'UTME', 'UTMN',\
+#                                coordinate_system = arcpy.SpatialReference(26915)) 
 
 
 
